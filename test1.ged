@@ -1,0 +1,223 @@
+0 NOTE https://github.com/brendanreis/ssw555-tm06-17A
+0 HEAD
+1 SOUR Family Echo
+2 WWW http://www.familyecho.com/
+1 FILE My Family
+1 DEST ANSTFILE
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @I1@
+1 SUBN
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Brendan /Reis/
+2 GIVN Brendan
+2 SURN Reis
+2 _MARNM Reis
+1 SEX M
+1 BIRT
+2 DATE 23 MAR 1995
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Manuel /Reis/
+2 GIVN Manuel
+2 SURN Reis
+2 _MARNM Reis
+1 SEX M
+1 BIRT
+2 DATE 19 MAY 1962
+1 FAMS @F1@
+1 FAMC @F2@
+0 @I3@ INDI
+1 NAME Joyce Herlihy /Reis/
+2 GIVN Joyce Herlihy
+2 SURN Reis
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 3 APR 1960
+1 FAMS @F1@
+1 FAMC @F3@
+0 @I4@ INDI
+1 NAME Jeremiah /Herlihy/
+2 GIVN Jeremiah
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 2 JAN 1930
+1 DEAT Y
+2 DATE 2 SEP 2006
+1 FAMS @F3@
+0 @I5@ INDI
+1 NAME Bernice /Berkowitz/
+2 GIVN Bernice
+2 SURN Berkowitz
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 2 JAN 1927
+1 DEAT Y
+2 DATE 11 FEB 2009
+1 FAMS @F3@
+0 @I6@ INDI
+1 NAME James /Herlihy/
+2 GIVN James
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 1 MAR 1964
+1 FAMS @F4@
+1 FAMC @F3@
+0 @I7@ INDI
+1 NAME Daniel /Herlihy/
+2 GIVN Daniel
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 3 NOV 1966
+1 FAMC @F3@
+0 @I8@ INDI
+1 NAME Jane /Stone/
+2 GIVN Jane
+2 SURN Stone
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 26 JAN 1970
+1 FAMS @F4@
+0 @I9@ INDI
+1 NAME Evan /Herlihy/
+2 GIVN Evan
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 6 OCT 1992
+1 FAMC @F4@
+0 @I10@ INDI
+1 NAME Dylan /Herlihy/
+2 GIVN Dylan
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 13 JUL 1996
+1 FAMC @F4@
+0 @I11@ INDI
+1 NAME Maria /Reis/
+2 GIVN Maria
+2 SURN Reis
+2 _MARNM Gonsalves
+1 SEX F
+1 BIRT
+2 DATE 2 OCT 1935
+1 FAMS @F2@
+0 @I12@ INDI
+1 NAME Salvador /Reis/
+2 GIVN Salvador
+2 SURN Reis
+2 _MARNM Reis
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1925
+1 DEAT Y
+2 DATE 1 NOV 2006
+1 FAMS @F2@
+0 @I13@ INDI
+1 NAME Maria /Reis/
+2 GIVN Maria
+2 SURN Reis
+2 _MARNM Reis
+1 SEX F
+1 BIRT
+2 DATE 3 AUG 1968
+1 FAMC @F2@
+0 @I14@ INDI
+1 NAME Robert /Herlihy/
+2 GIVN Robert
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 4 JAN 1960
+1 FAMS @F5@
+1 FAMS @F6@
+1 FAMC @F3@
+0 @I15@ INDI
+1 NAME Janet /Smith/
+2 GIVN Janet
+2 SURN Smith
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 3 JUL 1964
+1 DEAT Y
+2 DATE 3 FEB 1999
+1 FAMS @F6@
+0 @I16@ INDI
+1 NAME J /Kissinger/
+2 GIVN J
+2 SURN Kissinger
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 4 FEB 1975
+1 FAMS @F5@
+0 @I17@ INDI
+1 NAME Serena /Herlihy/
+2 GIVN Serena
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX F
+1 BIRT
+2 DATE 2 SEP 1990
+1 FAMC @F6@
+0 @I18@ INDI
+1 NAME Mark /Herlihy/
+2 GIVN Mark
+2 SURN Herlihy
+2 _MARNM Herlihy
+1 SEX M
+1 BIRT
+2 DATE 3 AUG 2003
+1 FAMC @F5@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 _CURRENT Y
+0 @F2@ FAM
+1 HUSB @I12@
+1 WIFE @I11@
+1 CHIL @I2@
+1 CHIL @I13@
+1 _CURRENT Y
+0 @F3@ FAM
+1 HUSB @I4@
+1 WIFE @I5@
+1 CHIL @I3@
+1 CHIL @I6@
+1 CHIL @I7@
+1 CHIL @I14@
+1 _CURRENT Y
+0 @F4@ FAM
+1 HUSB @I6@
+1 WIFE @I8@
+1 CHIL @I9@
+1 CHIL @I10@
+1 _CURRENT Y
+0 @F5@ FAM
+1 HUSB @I14@
+1 WIFE @I16@
+1 CHIL @I18@
+1 _CURRENT Y
+0 @F6@ FAM
+1 HUSB @I14@
+1 WIFE @I15@
+1 CHIL @I17@
+1 _CURRENT N
+0 TRLR
