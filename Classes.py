@@ -18,6 +18,11 @@ class Person(object):
     def __init__(self, tags):
         self.tags = tags
 
+    def getIndiId(self):
+        for tag in self.tags:
+            if TagLine.getTag(tag) == 'INDI':
+                return TagLine.getArgs(tag)
+
     def getName(self):
         for tag in self.tags:
             if TagLine.getTag(tag) == 'NAME':
@@ -42,8 +47,6 @@ class Person(object):
         for tag in self.tags:
             if TagLine.getTag(tag) == 'FAMS':
                 return TagLine.getArgs(tag)
-            if TagLine.getTag(tag) == 'FAM':
-                return TagLine.getArgs(tag)
             if TagLine.getTag(tag) == 'FAMC':
                 famId = TagLine.getArgs(tag)
         return famId
@@ -56,8 +59,8 @@ class Person(object):
                 tags.append(TagLine.getString(tag))
         return tags
 
-    def getJson(self, docId):
-        return {"_id": docId,
+    def getJson(self):
+        return {"indId": self.getIndiId(),
                 "name": self.getName(),
                 "birth": self.getBirthDate(),
                 "sex": self.getSex(),
