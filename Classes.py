@@ -47,10 +47,10 @@ class Person(object):
         return formatId(famId)
 
     def getOptionalTags(self):
-        primaryTags = ['NAME', 'SEX', 'BIRT', 'FAMC']
+        primaryTags = ['INDI', 'NAME', 'SEX', 'BIRT', 'FAMC']
         tags = []
         for tagLine in self.tagLines:
-            if tagLine not in primaryTags:
+            if tagLine.tag not in primaryTags:
                 tags.append(tagLine.getString())
         return tags
 
