@@ -46,11 +46,16 @@ def main():
             - the end of the GEDCOM file
         """
         if levelTagPair == "0 INDI" or levelTagPair == "0 FAM" or line == lines[len(lines) - 1]:
+            if line == lines[len(lines) - 1]:
+                if levelTagPair not in valid_tag_set:
+                    print("Ignoring '{}': unrecognized level+tag combination".format(line))
+                else:
+                    tags.append(Classes.TagLine(level, tag, args))
             if len(tags) > 0:
                 if currentType == "INDI":
                     people.insert_one(Classes.Person(tags).getJson())
-                # elif currentType == "FAM":
-                #     families.insertOne(Classes.Family(tags).getJson())
+                elif currentType == "FAM":
+                    families.insert_one(Classes.Family(tags).getJson())
                 else:
                     print("Error: Current entity not of type INDI or FAM")
                     currentId = None
@@ -59,16 +64,21 @@ def main():
             currentType = tag
             tags = []
 
-        if not currentId:
-            print("Ignoring '{}': haven't started individual or family".format(line))
-        elif levelTagPair not in valid_tag_set:
-            print("Ignoring '{}': invalid level+tag combination".format(line))
-        else:
-            tags.append(Classes.TagLine(level, tag, args))
+        if line != lines[len(lines) - 1]:
+            if not currentId:
+                print("Ignoring '{}': haven't started individual or family".format(line))
+            elif levelTagPair not in valid_tag_set:
+                print("Ignoring '{}': unrecognized level+tag combination".format(line))
+            else:
+                tags.append(Classes.TagLine(level, tag, args))
 
     print("People:")
     for person in people.find({}):
         print(person)
+
+    print("Families:")
+    for family in families.find({}):
+        print(family)
 
 
 if __name__ == "__main__":
