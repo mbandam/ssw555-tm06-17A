@@ -6,6 +6,7 @@ def main():
 
     with open("test1.ged") as file:
         lines = [line.rstrip("\n") for line in file.readlines()]
+        id = 1
         people = []
         tags = []
         for line in lines:
@@ -31,12 +32,13 @@ def main():
             if (level + " " + tag) == "0 INDI" and len(tags) > 0:
                 for tag in tags:
                     if Classes.TagLine.getTag(tag) == "NAME":
-                        people.append(Classes.Person(tags))
+                        people.append(Classes.Person(tags).getJson(id))
+                        id += 1
                 tags = []
 
-    #Here is a list of 'Person' JSON objects we can persist in MongoDB :)
+    #Here are 'Person' JSON objects we can persist in MongoDB :)
     for person in people:
-        print(Classes.Person.getJson(person, "SAMPLE_ID"))
+        print(person)
 
 if __name__ == "__main__":
     main()

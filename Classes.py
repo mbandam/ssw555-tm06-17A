@@ -37,8 +37,19 @@ class Person(object):
             if nextIsBirthDate:
                 return TagLine.getArgs(tag)
 
+    def getFamId(self):
+        famId = None
+        for tag in self.tags:
+            if TagLine.getTag(tag) == 'FAMS':
+                return TagLine.getArgs(tag)
+            if TagLine.getTag(tag) == 'FAM':
+                return TagLine.getArgs(tag)
+            if TagLine.getTag(tag) == 'FAMC':
+                famId = TagLine.getArgs(tag)
+        return famId
+
     def getOptionalTags(self):
-        primaryTags = ['NAME', 'SEX', 'BIRT']
+        primaryTags = ['NAME', 'SEX', 'BIRT', 'FAMC']
         tags = []
         for tag in self.tags:
             if tag not in primaryTags:
@@ -50,4 +61,5 @@ class Person(object):
                 "name": self.getName(),
                 "birth": self.getBirthDate(),
                 "sex": self.getSex(),
+                "famId" : self.getFamId(),
                 "tags": [self.getOptionalTags()]}
