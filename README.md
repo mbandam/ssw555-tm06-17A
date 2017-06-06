@@ -1,1 +1,1 @@
-# ssw555-tm06-17A
+This is a GEDCOM Family Tree Project for Stevens Institute of Technology SSW-555.
