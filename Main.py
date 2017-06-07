@@ -72,13 +72,29 @@ def main():
             else:
                 tags.append(Classes.TagLine(level, tag, args))
 
-    print("People:")
+    Individuals = PrettyTable()
+    Individuals.field_names = ["ID", "Name", "Gender", "Birthday","Age","Alive","Death","Child","Spouse"]
+    print("Individuals:")
     for person in people.find({}):
-        print(person)
-
+        #print(person)
+        person['birth'] = person['birth'].replace(" ", "/")
+        b_date = datetime.strptime(person['birth'],"%d/%b/%Y").strftime('%m/%d/%Y')
+        b_date = datetime.strptime(b_date, '%m/%d/%Y').date()
+        person['age'] = int((datetime.today().date() - b_date).days/365)
+        person['birth'] = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%Y-%m-%d')
+        Individuals.add_row([person['indId'],person['name'],person['sex'],person['birth'],
+                             person['age'],"null","null","null","null"])
+    print(Individuals)
+    
+    Families = PrettyTable()
+    Families.field_names = ["ID", "Married", "Divorced", "Husband ID","Husband Name","Wife ID","Wife Name","Children"]
     print("Families:")
     for family in families.find({}):
-        print(family)
+        #print(family)
+        
+        Families.add_row([family['famId'],family['marriageDate'],family['divorceDate'],family['husbandId'],
+                          "hus_name",family['wifeId'],"wife name",family['childrenIds']])
+    print(Families)
 
 
 if __name__ == "__main__":
