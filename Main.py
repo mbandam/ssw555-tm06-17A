@@ -72,6 +72,7 @@ def main():
             else:
                 tags.append(Classes.TagLine(level, tag, args))
 
+    # Pretty Table design
     Individuals = PrettyTable()
     Individuals.field_names = ["ID", "Name", "Gender", "Birthday","Age","Alive","Death","Child","Spouse"]
     print("Individuals:")
@@ -82,8 +83,55 @@ def main():
         b_date = datetime.strptime(b_date, '%m/%d/%Y').date()
         person['age'] = int((datetime.today().date() - b_date).days/365)
         person['birth'] = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%Y-%m-%d')
+        person['child'] = "NA"
+        person['alive'] = "True"
+        person['death'] = "NA"
+        if len(person['tags']) == 2:
+            word = person['tags'][1].split()
+            if word[1] == "FAMC":
+                word[2] = word[2].replace("@","")
+                person['child'] = '{'+word[2]+'}'
+                person['alive'] = "True"
+                person['death'] = "False"
+            
+            elif word[1]== "FAMS":
+                word[2] = word[2].replace("@","")
+                person['spouse'] = '{'+word[2]+'}'
+                person['alive'] = "True"
+                person['death'] = "False"
+            
+            else:
+                person['child'] = "NA"
+                person['spouse'] = "NA"
+        else:
+            person['child'] = "NA"
+            person['spouse'] = "NA"
+        
+        if len(person['tags']) == 4:
+            word = person['tags'][1].split()
+            if word[1] == "DEAT":
+                person['alive'] = "False"
+            else:
+                person['alive'] = "True"
+            word = person['tags'][2].split()
+            if word[1] == "DATE":
+                DeathDate = word[2]+"/"+word[3]+"/"+word[4]
+                person['death'] = datetime.strptime(DeathDate, "%d/%b/%Y").strftime('%Y-%m-%d')
+            else:
+                person['death'] = "NA"
+            word = person['tags'][3].split()
+            if word[1] == "FAMC":
+                word[2] = word[2].replace("@","")
+                person['child'] = '{'+word[2]+'}'
+            elif word[1]== "FAMS":
+                word[2] = word[2].replace("@","")
+                person['spouse'] = '{'+word[2]+'}'
+            else:
+                person['child'] = "NA"
+                person['spouse'] = "NA"
+        
         Individuals.add_row([person['indId'],person['name'],person['sex'],person['birth'],
-                             person['age'],"null","null","null","null"])
+                             person['age'],person['alive'],person['death'],person['child'],person['spouse']])
     print(Individuals)
     
     Families = PrettyTable()
@@ -91,9 +139,18 @@ def main():
     print("Families:")
     for family in families.find({}):
         #print(family)
-        
+        family['hus_name'] = "hus_name"
+        family['wife_name'] = "wife_name"
+        if family['divorceDate'] is None:
+            family['divorceDate'] = "NA"
+        for person in people.find({}):
+            if(family['husbandId'] == person['indId']):
+                family['hus_name'] = person['name']
+            if(family['wifeId'] == person['indId']):
+                family['wife_name'] = person['name']
+            
         Families.add_row([family['famId'],family['marriageDate'],family['divorceDate'],family['husbandId'],
-                          "hus_name",family['wifeId'],"wife name",family['childrenIds']])
+                          family['hus_name'],family['wifeId'],family['wife_name'],family['childrenIds']])
     print(Families)
 
 
