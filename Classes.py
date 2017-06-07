@@ -41,7 +41,7 @@ class Person(object):
         famId = None
         for tagLine in self.tagLines:
             if tagLine.tag == 'FAMS':
-                return formatId(tagLine.args)
+                return tagLine.args
             if tagLine.tag == 'FAMC':
                 famId = tagLine.args
         return formatId(famId)
