@@ -89,49 +89,36 @@ def main():
         person['child'] = "NA"
         person['alive'] = "True"
         person['death'] = "NA"
-        if len(person['tags']) == 2:
-            word = person['tags'][1].split()
-            if word[1] == "FAMC":
-                word[2] = word[2].replace("@","")
-                person['child'] = '{'+word[2]+'}'
-                person['alive'] = "True"
-                person['death'] = "False"
-            
-            elif word[1]== "FAMS":
-                word[2] = word[2].replace("@","")
-                person['spouse'] = '{'+word[2]+'}'
-                person['alive'] = "True"
-                person['death'] = "False"
-            
-            else:
-                person['child'] = "NA"
-                person['spouse'] = "NA"
-        else:
-            person['child'] = "NA"
-            person['spouse'] = "NA"
-        
-        if len(person['tags']) == 4:
-            word = person['tags'][1].split()
-            if word[1] == "DEAT":
+        person['spouse'] = "NA"
+
+        lastTag = None
+        for tagLineString in person['tags']:
+            tagLine = tagLineString.split(" ", maxsplit=2)
+
+            level = tagLine[0]
+            tag = tagLine[1]
+
+            args = ""
+            if len(tagLine) > 2:
+                args = tagLine[2]
+
+            if args == "FAMS" or args == "FAMC":
+                args, tag = tag, args
+
+            person['alive'] = "True"
+            person['death'] = "NA"
+
+            if tag == "FAMC":
+                person['child'] = "{}".format(args.strip("@"))
+            elif tag == "FAMS":
+                person['spouse'] = "{}".format(args.strip("@"))
+            elif tag == "DEAT":
                 person['alive'] = "False"
-            else:
-                person['alive'] = "True"
-            word = person['tags'][2].split()
-            if word[1] == "DATE":
-                DeathDate = word[2]+"/"+word[3]+"/"+word[4]
-                person['death'] = datetime.strptime(DeathDate, "%d/%b/%Y").strftime('%Y-%m-%d')
-            else:
-                person['death'] = "NA"
-            word = person['tags'][3].split()
-            if word[1] == "FAMC":
-                word[2] = word[2].replace("@","")
-                person['child'] = '{'+word[2]+'}'
-            elif word[1]== "FAMS":
-                word[2] = word[2].replace("@","")
-                person['spouse'] = '{'+word[2]+'}'
-            else:
-                person['child'] = "NA"
-                person['spouse'] = "NA"
+            elif tag == "DATE":
+                if lastTag == "DEAT":
+                    person['death'] = args
+
+            lastTag = tag
         
         Individuals.add_row([person['indId'],person['name'],person['sex'],person['birth'],
                              person['age'],person['alive'],person['death'],person['child'],person['spouse']])
@@ -146,10 +133,14 @@ def main():
         family['wife_name'] = "wife_name"
         if family['divorceDate'] is None:
             family['divorceDate'] = "NA"
+        if family['marriageDate'] is None:
+            family['marriageDate'] = "NA"
+
+        # Note: Change this, it's costly to query entire collection of individuals for every single family
         for person in people.find({}):
             if(family['husbandId'] == person['indId']):
                 family['hus_name'] = person['name']
-            if(family['wifeId'] == person['indId']):
+            elif(family['wifeId'] == person['indId']):
                 family['wife_name'] = person['name']
             
         Families.add_row([family['famId'],family['marriageDate'],family['divorceDate'],family['husbandId'],

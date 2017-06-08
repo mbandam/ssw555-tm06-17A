@@ -47,7 +47,7 @@ class Person(object):
         return formatId(famId)
 
     def getOptionalTags(self):
-        primaryTags = ['INDI', 'NAME', 'SEX', 'BIRT', 'FAMC']
+        primaryTags = ['INDI', 'NAME', 'SEX', 'BIRT']
         tags = []
         for tagLine in self.tagLines:
             if tagLine.tag not in primaryTags:
@@ -80,7 +80,7 @@ class Family(object):
             if tagLine.tag == targetTag:
                 foundTag = True
                 continue
-            elif foundTag and tagLine.tag == "DATE" and tagLine.level == "0":
+            elif foundTag and tagLine.tag == "DATE" and tagLine.level == "2":
                 return tagLine.args
 
     def getMarriageDate(self):
