@@ -1,6 +1,7 @@
 import Classes
 import pymongo
-
+from prettytable import PrettyTable
+from datetime import datetime
 
 def main():
     # These are the only level+tag combinations we are recognizing
