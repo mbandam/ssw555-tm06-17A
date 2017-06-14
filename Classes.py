@@ -43,6 +43,16 @@ class Person(object):
             if nextIsBirthDate:
                 return tagLine.args
 
+    def getDeathDate(self):
+        nextIsDeathDate = False
+        for tagLine in self.tagLines:
+            if tagLine.tag == 'DEAT':
+                nextIsDeathDate = True
+                continue
+            if nextIsDeathDate:
+                print("Death " + tagLine.args)
+                return tagLine.args
+
     def getFamId(self):
         famId = None
         for tagLine in self.tagLines:
@@ -64,6 +74,7 @@ class Person(object):
         return {"indId": self.getIndiId(),
                 "name": self.getName(),
                 "birth": self.getBirthDate(),
+                "death": self.getDeathDate(),
                 "sex": self.getSex(),
                 "famId" : self.getFamId(),
                 "tags": self.getOptionalTags()}
@@ -364,3 +375,17 @@ class Repository(object):
             else:
                 return False
 
+    def checkBirthBeforeDeath(self):
+        """US03"""
+        for person in self.peopleDb.find({}):
+
+            if person["death"]:
+                birthDate = self.convertGedcomDate(person['birth'])
+                deathDate = self.convertGedcomDate(person['death'])
+
+                if birthDate > deathDate:
+                    print("Error US03: {}'s death date ({}) precedes their birth date ({})".format(person["name"], person["death"], person["birth"]))
+
+    def convertGedcomDate(self, date):
+        """Convert GEDCOM date string to datetime.date object"""
+        return datetime.strptime(date, "%d %b %Y").date()

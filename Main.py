@@ -6,8 +6,9 @@ def main():
     repository.add("test1.ged")
     repository.printFamilies()
     repository.printPeople()
-    repository.datesBeforeCurrentDate()
-    repository.birthBeforeMarriage()
+    # repository.datesBeforeCurrentDate()
+    # repository.birthBeforeMarriage()
+    repository.checkBirthBeforeDeath()
 
 if __name__ == "__main__":
     main()
