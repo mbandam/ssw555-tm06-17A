@@ -43,6 +43,16 @@ class Person(object):
             if nextIsBirthDate:
                 return tagLine.args
 
+    def getDeathDate(self):
+        nextIsDeathDate = False
+        for tagLine in self.tagLines:
+            if tagLine.tag == 'DEAT':
+                nextIsDeathDate = True
+                continue
+            if nextIsDeathDate:
+                print("Death " + tagLine.args)
+                return tagLine.args
+
     def getFamId(self):
         famId = None
         for tagLine in self.tagLines:
@@ -64,6 +74,7 @@ class Person(object):
         return {"indId": self.getIndiId(),
                 "name": self.getName(),
                 "birth": self.getBirthDate(),
+                "death": self.getDeathDate(),
                 "sex": self.getSex(),
                 "famId" : self.getFamId(),
                 "tags": self.getOptionalTags()}
@@ -328,10 +339,6 @@ class Repository(object):
     def birthBeforeMarriage(self):
         errorMessages = []
         for family in self.familyDb.find({}):
-            if family['marriageDate'] is not None:
-                family['marriageDate'] = family['marriageDate'].replace(" ", "/")
-                marriage_date = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                marriage_date = datetime.strptime(marriage_date, '%m/%d/%Y').date()
             for person in self.peopleDb.find({}):
                 if (family['husbandId'] == person['indId']):
                     person['birth'] = person['birth'].replace(" ", "/")
@@ -341,12 +348,47 @@ class Repository(object):
                     person['birth'] = person['birth'].replace(" ", "/")
                     wife_bdate = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
                     wife_bdate = datetime.strptime(wife_bdate, '%m/%d/%Y').date()
-        
-            if(hus_bdate > marriage_date):
-                error = "For family "+family['famId'] + ": Husband " + family['husbandId'] +" has date of birth " + string(hus_bdate) + " after marriage date "+ string(marriage_date)     
-                errorMessages.append(error)
-            if(wife_bdate > marriage_date):
-                errorString = "For family "+family['famId'] + ": Wife " + family['wifeId'] +" has date of birth " + string(wife_bdate) + " after marriage date "+ string(marriage_date)
-                errorMessages.append(error)
-        if errorMessages: 
+            
+            if family['marriageDate'] is not None:
+                family['marriageDate'] = family['marriageDate'].replace(" ", "/")
+                marriage_date = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
+                marriage_date = datetime.strptime(marriage_date, '%m/%d/%Y').date()
+                if Repository.checkBirthBeforeMarriage(hus_bdate,marriage_date) is False: 
+                    error = "For family "+family['famId'] + ": Husband " + family['husbandId'] +" has date of birth " + str(hus_bdate) + " after marriage date "+ str(marriage_date)     
+                    errorMessages.append(error)
+                if Repository.checkBirthBeforeMarriage(wife_bdate,marriage_date) is False:
+                    error = "For family "+family['famId'] + ": Wife " + family['wifeId'] +" has date of birth " + str(wife_bdate) + " after marriage date "+ str(marriage_date)
+                    errorMessages.append(error)
+        if errorMessages:
             print(errorMessages)
+    
+    def checkBirthBeforeMarriage(b_date,m_date):
+        if b_date is None:
+            print("The given birthday date is null")
+            return False
+        else:
+            if m_date is None:
+                print("Marriage date is not available")
+                return False
+            elif b_date < m_date:
+                return True
+            else:
+                return False
+
+    def checkBirthBeforeDeath(self):
+        '''US03'''
+        peopleWithErrors = []
+        for person in self.peopleDb.find({}):
+
+            if person['birth'] and person["death"]:
+                birthDate = self.convertGedcomDate(person['birth'])
+                deathDate = self.convertGedcomDate(person['death'])
+
+                if birthDate > deathDate:
+                    print("Error US03: {}'s death date ({}) precedes their birth date ({})".format(person["name"], person["death"], person["birth"]))
+                    peopleWithErrors.append(person)
+        return peopleWithErrors
+
+    def convertGedcomDate(self, date):
+        '''Convert GEDCOM date string to datetime.date object'''
+        return datetime.strptime(date, "%d %b %Y").date()
