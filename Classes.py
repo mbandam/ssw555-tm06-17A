@@ -376,16 +376,19 @@ class Repository(object):
                 return False
 
     def checkBirthBeforeDeath(self):
-        """US03"""
+        '''US03'''
+        peopleWithErrors = []
         for person in self.peopleDb.find({}):
 
-            if person["death"]:
+            if person['birth'] and person["death"]:
                 birthDate = self.convertGedcomDate(person['birth'])
                 deathDate = self.convertGedcomDate(person['death'])
 
                 if birthDate > deathDate:
                     print("Error US03: {}'s death date ({}) precedes their birth date ({})".format(person["name"], person["death"], person["birth"]))
+                    peopleWithErrors.append(person)
+        return peopleWithErrors
 
     def convertGedcomDate(self, date):
-        """Convert GEDCOM date string to datetime.date object"""
+        '''Convert GEDCOM date string to datetime.date object'''
         return datetime.strptime(date, "%d %b %Y").date()
