@@ -375,6 +375,7 @@ class Repository(object):
 
     # Going forward, let's reserve the repository class for CRUD operations.
     # To learn more about the repository pattern, check this out: https://msdn.microsoft.com/en-us/library/ff649690.aspx
+    # - Tim
     def birthBeforeMarriage(self):
         errorMessages = []
         for family in self.familyDb.find({}):
@@ -405,7 +406,6 @@ class Repository(object):
         if errorMessages:
             print(errorMessages)
 
-    # See lines 371 & 372 :)
     def checkBirthBeforeMarriage(b_date, m_date):
         if b_date is None:
             print("The given birthday date is null")
