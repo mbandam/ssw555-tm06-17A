@@ -1,3 +1,5 @@
+from enum import Enum
+
 def validTags():
     return {"0 INDI",
             "1 NAME",
@@ -13,3 +15,7 @@ def validTags():
             "1 CHIL",
             "1 DIV",
             "2 DATE"}
+
+class Sex(Enum):
+        MALE = 'M'
+        FEMALE = 'F'

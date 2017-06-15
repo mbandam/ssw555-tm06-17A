@@ -1,9 +1,8 @@
 import Classes
-
 import unittest
 
-class US03Test(unittest.TestCase):
 
+class US03Test(unittest.TestCase):
     def setUp(self):
         self.repository = Classes.Repository("localhost", 27017)
 
@@ -30,6 +29,7 @@ class US03Test(unittest.TestCase):
     def testSameDate(self):
         peopleWithErrors = self.getPeopleWithErrors("test_us03_5.ged")
         self.assertEqual(len(peopleWithErrors), 0)
+
 
 if __name__ == '__main__':
     unittest.main()
