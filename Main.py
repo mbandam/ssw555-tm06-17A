@@ -1,4 +1,5 @@
 import Classes
+import Validator
 
 def main():
     print('Welcome to the Stevens Institute of Technology GEDCOM Family Tree Project - SSW555 2017')
@@ -6,9 +7,8 @@ def main():
     repository.add("test1.ged")
     repository.printFamilies()
     repository.printPeople()
-    # repository.datesBeforeCurrentDate()
-    # repository.birthBeforeMarriage()
-    repository.checkBirthBeforeDeath()
+    Validator.validateFamilies(repository)
+
 
 if __name__ == "__main__":
     main()
