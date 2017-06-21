@@ -21,6 +21,7 @@ def validateFamilies(repository):
 
 # Pass husband, wife and family objects through validation checks
 def validateMarriage(husband, wife, family):
+    marriageIsBeforeDivorce(husband, wife, family)
     marriageIsBeforeDeath(husband, wife, family)
     divorceIsBeforeDeath(husband, wife, family)
 
@@ -55,3 +56,13 @@ def divorceIsBeforeDeath(husband, wife, family):
     if wifeDeathDate is not None and wifeDeathDate < divorceDate:
         raise Exceptions.DivorceAfterDeath(wife, family)
     return
+
+def marriageIsBeforeDivorce(husband, wife, family):
+    marriageDate = Util.parseDate(family.getMarriageDate())
+    divorceDate = Util.parseDate(family.getDivorceDate())
+
+    if divorceDate is not None:
+        if marriageDate is None:
+            raise Exceptions.DivorceWithoutMarriage(family)
+        elif marriageDate > divorceDate:
+            raise Exceptions.MarriageAfterDivorce(family)

@@ -45,3 +45,17 @@ class DivorceAfterDeath(MarriageException):
             famId = family.getFamId()
             self.message(
                 'Wife of familyId ' + famId + ' cannot get divorced ' + divorceDate + '. She died before then on ' + deathDate)
+
+class MarriageAfterDivorce(MarriageException):
+    def __init__(self, family):
+        marriageDate = family.getMarriageDate()
+        divorceDate = family.getDivorceDate()
+        famId = family.getFamId()
+
+        self.message = "Family {} has marriage date ({}) later than their divorce date ({}).".format(famId, marriageDate, divorceDate)
+
+class DivorceWithoutMarriage(MarriageException):
+    def __init__(self, family):
+        famId = family.getFamId()
+
+        self.message = "Family {} has a divorce without a marriage.".format(famId)

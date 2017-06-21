@@ -9,7 +9,7 @@ def main():
     repository.printPeople()
     # repository.datesBeforeCurrentDate()
     # repository.birthBeforeMarriage()
-    repository.checkBirthBeforeDeath()
+    # repository.checkBirthBeforeDeath()
     Validator.validateFamilies(repository)
 
 
