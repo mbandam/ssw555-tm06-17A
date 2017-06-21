@@ -10,6 +10,7 @@ def main():
     # repository.datesBeforeCurrentDate()
     # repository.birthBeforeMarriage()
     # repository.checkBirthBeforeDeath()
+    Validator.validatePeople(repository)
     Validator.validateFamilies(repository)
 
 

@@ -1,6 +1,32 @@
 import Exceptions
 import Util
 
+# Print exception messages for all invalid individuals in the database
+def validatePeople(repository):
+    exceptionMessages = []
+
+    for person in repository.getPeople():
+        try:
+            validatePerson(person)
+        except Exceptions.PersonException as e:
+            exceptionMessages.append(e.message)
+
+    if exceptionMessages:
+        for message in exceptionMessages:
+            print(message)
+    else:
+        print("All individuals are valid.")
+
+def validatePerson(person):
+    birthIsBeforeDeath(person)
+
+def birthIsBeforeDeath(person):
+    birthDate = Util.parseDate(person.getBirthDate())
+    deathDate = Util.parseDate(person.getDeathDate())
+
+    if deathDate is not None and birthDate is not None and birthDate > deathDate:
+        raise Exceptions.BirthAfterDeath(person)
+
 
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
@@ -41,7 +67,6 @@ def marriageIsBeforeDeath(husband, wife, family):
         raise Exceptions.MarriageAfterDeath(wife, family)
     return
 
-
 # Confirm the divorce occured before the death of the husband and wife
 def divorceIsBeforeDeath(husband, wife, family):
     divorceDate = Util.parseDate(family.getDivorceDate())
@@ -61,8 +86,5 @@ def marriageIsBeforeDivorce(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     divorceDate = Util.parseDate(family.getDivorceDate())
 
-    if divorceDate is not None:
-        if marriageDate is None:
-            raise Exceptions.DivorceWithoutMarriage(family)
-        elif marriageDate > divorceDate:
-            raise Exceptions.MarriageAfterDivorce(family)
+    if divorceDate is not None and marriageDate is not None and marriageDate > divorceDate:
+        raise Exceptions.MarriageAfterDivorce(family)

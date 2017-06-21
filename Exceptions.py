@@ -4,11 +4,22 @@ import Domain
 class Error(Exception):
     pass
 
+class PersonException(Error):
+    def __init__(self):
+        self.message = 'This individual is invalid.'
+
+class BirthAfterDeath(PersonException):
+    def __init__(self, person):
+        name = person.getName()
+        indiId = person.getIndiId()
+        birthDate = person.getBirthDate()
+        deathDate = person.getDeathDate()
+
+        self.message = "{} (with ID of {}) was born on {} after they died on {}".format(name, indiId, birthDate, deathDate)
 
 class MarriageException(Error):
     def __init__(self):
         self.message = 'This marriage is invalid.'
-
 
 class MarriageAfterDeath(MarriageException):
     def __init__(self, person, family):
@@ -53,9 +64,3 @@ class MarriageAfterDivorce(MarriageException):
         famId = family.getFamId()
 
         self.message = "Family {} has marriage date ({}) later than their divorce date ({}).".format(famId, marriageDate, divorceDate)
-
-class DivorceWithoutMarriage(MarriageException):
-    def __init__(self, family):
-        famId = family.getFamId()
-
-        self.message = "Family {} has a divorce without a marriage.".format(famId)
