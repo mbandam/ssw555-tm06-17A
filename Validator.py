@@ -47,10 +47,9 @@ def validateFamilies(repository):
 
 # Pass husband, wife and family objects through validation checks
 def validateMarriage(husband, wife, family):
-    marriageIsBeforeDivorce(husband, wife, family)
     marriageIsBeforeDeath(husband, wife, family)
     divorceIsBeforeDeath(husband, wife, family)
-
+    marriageIsBeforeDivorce(husband, wife, family)
 
 # Confirm the marriage occured before the death of the husband and wife
 def marriageIsBeforeDeath(husband, wife, family):
