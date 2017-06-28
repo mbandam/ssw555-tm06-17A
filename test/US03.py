@@ -1,34 +1,41 @@
 import Classes
+import Validator
+import Exceptions
 import unittest
 
-
 class US03Test(unittest.TestCase):
-    def setUp(self):
-        self.repository = Classes.Repository("localhost", 27017)
+    def getExceptionsForAllPeople(self, filename):
+        repository = Classes.Repository("localhost", 27017)
+        repository.add(filename)
+        exceptionMessages = []
 
-    def getPeopleWithErrors(self, filename):
-        self.repository.add(filename)
-        return self.repository.checkBirthBeforeDeath()
+        for person in repository.getPeople():
+            try:
+                Validator.birthIsBeforeDeath(person)
+            except Exceptions.PersonException as e:
+                exceptionMessages.append(e.message)
+
+        return exceptionMessages
 
     def testOneError(self):
-        peopleWithErrors = self.getPeopleWithErrors("test_us03_1.ged")
-        self.assertEqual(len(peopleWithErrors), 1)
+        exceptionMessages = self.getExceptionsForAllPeople("test_us03_1.ged")
+        self.assertEqual(len(exceptionMessages), 1)
 
     def testThreeErrors(self):
-        peopleWithErrors = self.getPeopleWithErrors("test_us03_2.ged")
-        self.assertEqual(len(peopleWithErrors), 3)
+        exceptionMessages = self.getExceptionsForAllPeople("test_us03_2.ged")
+        self.assertEqual(len(exceptionMessages), 3)
 
     def testNoErrors(self):
-        peopleWithErrors = self.getPeopleWithErrors("test_us03_3.ged")
-        self.assertEqual(len(peopleWithErrors), 0)
+        exceptionMessages = self.getExceptionsForAllPeople("test_us03_3.ged")
+        self.assertEqual(len(exceptionMessages), 0)
 
     def testMissingBirth(self):
-        peopleWithErrors = self.getPeopleWithErrors("test_us03_4.ged")
-        self.assertEqual(len(peopleWithErrors), 0)
+        exceptionMessages = self.getExceptionsForAllPeople("test_us03_4.ged")
+        self.assertEqual(len(exceptionMessages), 0)
 
     def testSameDate(self):
-        peopleWithErrors = self.getPeopleWithErrors("test_us03_5.ged")
-        self.assertEqual(len(peopleWithErrors), 0)
+        exceptionMessages = self.getExceptionsForAllPeople("test_us03_5.ged")
+        self.assertEqual(len(exceptionMessages), 0)
 
 
 if __name__ == '__main__':
