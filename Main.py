@@ -7,9 +7,10 @@ def main():
     repository.add("test1.ged")
     repository.printFamilies()
     repository.printPeople()
-    # repository.datesBeforeCurrentDate()
-    # repository.birthBeforeMarriage()
-    repository.checkBirthBeforeDeath()
+    repository.datesBeforeCurrentDate()
+    repository.birthBeforeMarriage()
+    # repository.checkBirthBeforeDeath()
+    Validator.validatePeople(repository)
     Validator.validateFamilies(repository)
 
 
