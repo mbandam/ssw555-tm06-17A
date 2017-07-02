@@ -239,7 +239,7 @@ class Repository(object):
                                    "Children"]
         print("Families:")
         for family in self.familyDb.find({}):
-            # print(family)
+
             family['hus_name'] = "hus_name"
             family['wife_name'] = "wife_name"
             if family['divorceDate'] is None:
@@ -255,7 +255,7 @@ class Repository(object):
 
             family['hus_name'] = self.getPerson(family['husbandId']).getName()
             family['wife_name'] = self.getPerson(family['wifeId']).getName()
-            
+
             familyTable.add_row([family['famId'], family['marriageDate'], family['divorceDate'], family['husbandId'],
                                  family['hus_name'], family['wifeId'], family['wife_name'], family['childrenIds']])
         print(familyTable)
@@ -429,29 +429,20 @@ class Repository(object):
             families.append(Family.fromJson(json['tags']))
         return families
 
-    def getPerson(self, individualId):
-        for person in self.getPeople():
-            if person.getIndiId() == individualId:
-                return person
-        return None
+    def getPerson(self, personId):
+        return Person.fromJson(self.peopleDb.find_one({'indId': personId})['tags'])
 
-    def getFamily(self, famId):
-        for family in self.getFamilies():
-            if family.getFamId() == famId:
-                return family
-        return None
-
-    def getSpouses(self, individualId):
-        familyId = self.getFamilyId(individualId)
+    def getFamily(self, familyId):
+        return Family.fromJson(self.familyDb.find_one({'famId': familyId})['tags'])
 
     def getFamilyId(self, individualId):
-        return self.peopleDb.find({'indId': individualId})['famId']
+        return self.peopleDb.find_one({'indId': individualId})['famId']
 
     def getMarriageDate(self, familyId):
-        return self.peopleDb.find({'famId': familyId})['marriageDate']
+        return self.peopleDb.find_one({'famId': familyId})['marriageDate']
 
     def getDivoreceDate(self, familyId):
-        return self.peopleDb.find({'famId': familyId})['divorceDate']
+        return self.peopleDb.find_one({'famId': familyId})['divorceDate']
 
 
 def formatId(id):
