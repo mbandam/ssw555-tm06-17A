@@ -253,13 +253,9 @@ class Repository(object):
                 family['marriageDate'] = family['marriageDate'].replace(" ", "/")
                 family['marriageDate'] = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%Y-%m-%d')
 
-            # Note: Change this, it's costly to query entire collection of individuals for every single family
-            for person in self.peopleDb.find({}):
-                if (family['husbandId'] == person['indId']):
-                    family['hus_name'] = person['name']
-                elif (family['wifeId'] == person['indId']):
-                    family['wife_name'] = person['name']
-
+            family['hus_name'] = self.getPerson(family['husbandId']).getName()
+            family['wife_name'] = self.getPerson(family['wifeId']).getName()
+            
             familyTable.add_row([family['famId'], family['marriageDate'], family['divorceDate'], family['husbandId'],
                                  family['hus_name'], family['wifeId'], family['wife_name'], family['childrenIds']])
         print(familyTable)
@@ -315,9 +311,6 @@ class Repository(object):
                                  person['age'], person['alive'], person['death'], person['child'], person['spouse']])
         print(personTable)
 
-    # Going forward, let's reserve the repository class for CRUD operations.
-    # To learn more about the repository pattern, check this out: https://msdn.microsoft.com/en-us/library/ff649690.aspx
-    # - Tim
     def birthBeforeMarriage(self):
         errorMessages = []
         for family in self.familyDb.find({}):
@@ -371,7 +364,8 @@ class Repository(object):
             birth_date = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
             birth_date = datetime.strptime(birth_date, '%m/%d/%Y').date()
             if (birth_date > today):
-                error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has birthday on " + str(birth_date) + " which is after current date"
+                error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has birthday on " + str(
+                    birth_date) + " which is after current date"
                 errorMessages.append(error)
 
             lastTag = None
@@ -396,7 +390,8 @@ class Repository(object):
                 lastTag = tag
             if death_date != "NA":
                 if (death_date > today):
-                    error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has deathday on " + str(death_date) + " which is after current date"
+                    error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has deathday on " + str(
+                        death_date) + " which is after current date"
                     errorMessages.append(error)
 
         # Checking marriage and divorce dates of a family
@@ -406,7 +401,8 @@ class Repository(object):
                 divorce_date = datetime.strptime(family['divorceDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
                 divorce_date = datetime.strptime(divorce_date, '%m/%d/%Y').date()
                 if (divorce_date > today):
-                    error = "ERROR: FAMILY: US01: " + family['famId'] + ": This family has taken divorce on " + str(divorce_date) + " which is after current date"
+                    error = "ERROR: FAMILY: US01: " + family['famId'] + ": This family has taken divorce on " + str(
+                        divorce_date) + " which is after current date"
                     errorMessages.append(error)
             if family['marriageDate'] is not None:
                 family['marriageDate'] = family['marriageDate'].replace(" ", "/")
