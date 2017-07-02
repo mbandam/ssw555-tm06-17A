@@ -1,6 +1,7 @@
 import Exceptions
 import Util
 
+
 # Print exception messages for all invalid individuals in the database
 def validatePeople(repository):
     functions = [birthIsBeforeDeath]
@@ -19,12 +20,14 @@ def validatePeople(repository):
     else:
         print("All individuals are valid.")
 
+
 def birthIsBeforeDeath(person):
     birthDate = Util.parseDate(person.getBirthDate())
     deathDate = Util.parseDate(person.getDeathDate())
 
     if deathDate is not None and birthDate is not None and birthDate > deathDate:
         raise Exceptions.BirthAfterDeath(person)
+
 
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
@@ -47,6 +50,7 @@ def validateFamilies(repository):
     else:
         print('All families are valid.')
 
+
 # Confirm the marriage occured before the death of the husband and wife
 def marriageIsBeforeDeath(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
@@ -62,6 +66,7 @@ def marriageIsBeforeDeath(husband, wife, family):
         raise Exceptions.MarriageAfterDeath(wife, family)
     return
 
+
 def birthIsBeforeMarriage(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     if marriageDate is None:
@@ -71,9 +76,10 @@ def birthIsBeforeMarriage(husband, wife, family):
     if husbandBirthday is None and wifeBirthday is None:
         return
     if husbandBirthday is not None and husbandBirthday > marriageDate:
-        raise Exception
+        raise Exceptions.MarriageBeforeBirth(husband, family)
     if wifeBirthday is not None and wifeBirthday > marriageDate:
-        raise Exception
+        raise Exceptions.MarriageBeforeBirth(wife, family)
+
 
 # Confirm the divorce occured before the death of the husband and wife
 def divorceIsBeforeDeath(husband, wife, family):
@@ -90,9 +96,10 @@ def divorceIsBeforeDeath(husband, wife, family):
         raise Exceptions.DivorceAfterDeath(wife, family)
     return
 
+
 def marriageIsBeforeDivorce(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     divorceDate = Util.parseDate(family.getDivorceDate())
 
     if divorceDate is not None and marriageDate is not None and marriageDate > divorceDate:
-        raise Exceptions.MarriageAfterDivorce(family)
+        raise Exceptions.MarriageAfterDivorce(husband, family)
