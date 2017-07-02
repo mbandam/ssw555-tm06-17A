@@ -62,6 +62,19 @@ def marriageIsBeforeDeath(husband, wife, family):
         raise Exceptions.MarriageAfterDeath(wife, family)
     return
 
+def birthIsBeforeMarriage(husband, wife, family):
+    marriageDate = Util.parseDate(family.getMarriageDate())
+    if marriageDate is None:
+        return
+    husbandBirthday = Util.parseDate(husband.getBirthDate())
+    wifeBirthday = Util.parseDate(wife.getBirthDate())
+    if husbandBirthday is None and wifeBirthday is None:
+        return
+    if husbandBirthday is not None and husbandBirthday > marriageDate:
+        raise Exception
+    if wifeBirthday is not None and wifeBirthday > marriageDate:
+        raise Exception
+
 # Confirm the divorce occured before the death of the husband and wife
 def divorceIsBeforeDeath(husband, wife, family):
     divorceDate = Util.parseDate(family.getDivorceDate())
