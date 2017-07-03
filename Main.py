@@ -1,6 +1,7 @@
 import Classes
 import Validator
 
+
 def main():
     print('Welcome to the Stevens Institute of Technology GEDCOM Family Tree Project - SSW555 2017')
     repository = Classes.Repository("localhost", 27017)
