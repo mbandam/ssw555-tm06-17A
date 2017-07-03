@@ -11,7 +11,7 @@ class US03Test(unittest.TestCase):
 
         for person in repository.getPeople():
             try:
-                Validator.birthIsBeforeDeath(person)
+                Validator.birthBeforeDeath(person)
             except Exceptions.PersonException as e:
                 exceptionMessages.append(e.message)
 

@@ -1,10 +1,10 @@
 import Exceptions
 import Util
+from datetime import datetime
 
 
-# Print exception messages for all invalid individuals in the database
 def validatePeople(repository):
-    functions = [birthIsBeforeDeath]
+    functions = [birthBeforeDeath, birthInFuture]
     exceptionMessages = []
 
     for person in repository.getPeople():
@@ -21,7 +21,7 @@ def validatePeople(repository):
         print("All individuals are valid.")
 
 
-def birthIsBeforeDeath(person):
+def birthBeforeDeath(person):
     birthDate = Util.parseDate(person.getBirthDate())
     deathDate = Util.parseDate(person.getDeathDate())
 
@@ -29,9 +29,14 @@ def birthIsBeforeDeath(person):
         raise Exceptions.BirthAfterDeath(person)
 
 
+def birthInFuture(person):
+    if inFuture(Util.parseDate(person.getBirthDate())):
+        raise Exceptions.BirthInFuture(person)
+
+
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
-    functions = [marriageIsBeforeDeath, divorceIsBeforeDeath, marriageIsBeforeDivorce]
+    functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce]
     exceptionMessages = []
 
     for family in repository.getFamilies():
@@ -51,8 +56,7 @@ def validateFamilies(repository):
         print('All families are valid.')
 
 
-# Confirm the marriage occured before the death of the husband and wife
-def marriageIsBeforeDeath(husband, wife, family):
+def marriageBeforeDeath(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     if marriageDate is None:
         return
@@ -67,7 +71,7 @@ def marriageIsBeforeDeath(husband, wife, family):
     return
 
 
-def birthIsBeforeMarriage(husband, wife, family):
+def birthBeforeMarriage(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     if marriageDate is None:
         return
@@ -81,8 +85,7 @@ def birthIsBeforeMarriage(husband, wife, family):
         raise Exceptions.MarriageBeforeBirth(wife, family)
 
 
-# Confirm the divorce occured before the death of the husband and wife
-def divorceIsBeforeDeath(husband, wife, family):
+def divorceBeforeDeath(husband, wife, family):
     divorceDate = Util.parseDate(family.getDivorceDate())
     if divorceDate is None:
         return
@@ -97,9 +100,13 @@ def divorceIsBeforeDeath(husband, wife, family):
     return
 
 
-def marriageIsBeforeDivorce(husband, wife, family):
+def marriageBeforeDivorce(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     divorceDate = Util.parseDate(family.getDivorceDate())
 
     if divorceDate is not None and marriageDate is not None and marriageDate > divorceDate:
         raise Exceptions.MarriageAfterDivorce(husband, family)
+
+
+def inFuture(day):
+    return day > datetime.today()

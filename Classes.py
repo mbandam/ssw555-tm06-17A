@@ -1,7 +1,7 @@
 import Domain
 import pymongo
 from prettytable import PrettyTable
-from datetime import datetime, date
+from datetime import datetime
 
 
 class TagLine(object):
@@ -210,12 +210,12 @@ class Repository(object):
                     if levelTagPair not in validTags:
                         print("Ignoring '{}': unrecognized level+tag combination".format(line))
                     else:
-                        tags.append(Classes.TagLine(level, tag, args))
+                        tags.append(TagLine(level, tag, args))
                 if len(tags) > 0:
                     if currentType == "INDI":
-                        self.peopleDb.insert_one(Classes.Person(tags).getJson())
+                        self.peopleDb.insert_one(Person(tags).getJson())
                     elif currentType == "FAM":
-                        self.familyDb.insert_one(Classes.Family(tags).getJson())
+                        self.familyDb.insert_one(Family(tags).getJson())
                     else:
                         print("Error: Current entity not of type INDI or FAM")
                         currentId = None
@@ -230,7 +230,7 @@ class Repository(object):
                 elif levelTagPair not in validTags:
                     print("Ignoring '{}': unrecognized level+tag combination".format(line))
                 else:
-                    tags.append(Classes.TagLine(level, tag, args))
+                    tags.append(TagLine(level, tag, args))
 
     def printFamilies(self):
         familyTable = PrettyTable()
@@ -309,112 +309,6 @@ class Repository(object):
             personTable.add_row([person['indId'], person['name'], person['sex'], person['birth'],
                                  person['age'], person['alive'], person['death'], person['child'], person['spouse']])
         print(personTable)
-
-    def birthBeforeMarriage(self):
-        errorMessages = []
-        for family in self.familyDb.find({}):
-            for person in self.peopleDb.find({}):
-                if (family['husbandId'] == person['indId']):
-                    person['birth'] = person['birth'].replace(" ", "/")
-                    hus_bdate = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                    hus_bdate = datetime.strptime(hus_bdate, '%m/%d/%Y').date()
-                if (family['wifeId'] == person['indId']):
-                    person['birth'] = person['birth'].replace(" ", "/")
-                    wife_bdate = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                    wife_bdate = datetime.strptime(wife_bdate, '%m/%d/%Y').date()
-
-            if family['marriageDate'] is not None:
-                family['marriageDate'] = family['marriageDate'].replace(" ", "/")
-                marriage_date = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                marriage_date = datetime.strptime(marriage_date, '%m/%d/%Y').date()
-                if Repository.checkBirthBeforeMarriage(hus_bdate, marriage_date) is False:
-                    error = "ERROR: FAMILY: US02: " + family['famId'] + ": Husband (" + family[
-                        'husbandId'] + ") has date of birth " + str(hus_bdate) + " after marriage date " + str(
-                        marriage_date)
-                    errorMessages.append(error)
-                if Repository.checkBirthBeforeMarriage(wife_bdate, marriage_date) is False:
-                    error = "ERROR: FAMILY: US02: " + family['famId'] + ": Wife (" + family[
-                        'wifeId'] + ") has date of birth " + str(wife_bdate) + " after marriage date " + str(
-                        marriage_date)
-                    errorMessages.append(error)
-        if errorMessages:
-            for i in range(len(errorMessages)):
-                print(errorMessages[i])
-
-    def checkBirthBeforeMarriage(b_date, m_date):
-        if b_date is None:
-            print("The given birthday date is null")
-            return False
-        else:
-            if m_date is None:
-                print("Marriage date is not available")
-                return False
-            elif b_date < m_date:
-                return True
-            else:
-                return False
-
-    def datesBeforeCurrentDate(self):
-        errorMessages = []
-        today = date.today()
-        # Checking birth and death dates of an individual
-        for person in self.peopleDb.find({}):
-            person['birth'] = person['birth'].replace(" ", "/")
-            birth_date = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
-            birth_date = datetime.strptime(birth_date, '%m/%d/%Y').date()
-            if (birth_date > today):
-                error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has birthday on " + str(
-                    birth_date) + " which is after current date"
-                errorMessages.append(error)
-
-            lastTag = None
-            death_date = "NA"
-            for tagLineString in person['tags']:
-                tagLine = tagLineString.split(" ", maxsplit=2)
-
-                level = tagLine[0]
-                tag = tagLine[1]
-
-                args = ""
-                if len(tagLine) > 2:
-                    args = tagLine[2]
-
-                if tag == "DATE":
-                    if lastTag == "DEAT":
-                        death_date = args
-                        death_date = death_date.replace(" ", "/")
-                        death_date = datetime.strptime(death_date, "%d/%b/%Y").strftime('%m/%d/%Y')
-                        death_date = datetime.strptime(death_date, '%m/%d/%Y').date()
-
-                lastTag = tag
-            if death_date != "NA":
-                if (death_date > today):
-                    error = "ERROR: INDIVIDUAL: US01: " + person['indId'] + ": The person has deathday on " + str(
-                        death_date) + " which is after current date"
-                    errorMessages.append(error)
-
-        # Checking marriage and divorce dates of a family
-        for family in self.familyDb.find({}):
-            if family['divorceDate'] is not None:
-                family['divorceDate'] = family['divorceDate'].replace(" ", "/")
-                divorce_date = datetime.strptime(family['divorceDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                divorce_date = datetime.strptime(divorce_date, '%m/%d/%Y').date()
-                if (divorce_date > today):
-                    error = "ERROR: FAMILY: US01: " + family['famId'] + ": This family has taken divorce on " + str(
-                        divorce_date) + " which is after current date"
-                    errorMessages.append(error)
-            if family['marriageDate'] is not None:
-                family['marriageDate'] = family['marriageDate'].replace(" ", "/")
-                marriage_date = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%m/%d/%Y')
-                marriage_date = datetime.strptime(marriage_date, '%m/%d/%Y').date()
-                if (marriage_date > today):
-                    error = "ERROR: FAMILY: US01: " + family['famId'] + ": This family has marriageday on " + str(
-                        marriage_date) + " which is after current date"
-                    errorMessages.append(error)
-
-        if errorMessages:
-            for i in range(len(errorMessages)):
-                print(errorMessages[i])
 
     def getPeople(self):
         people = []

@@ -37,39 +37,39 @@ class US06Test(unittest.TestCase):
     def testHusbandDiedAfterMarriage(self):
         self.husband.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.husband.addTag(Classes.TagLine('1', 'DATE', '8 JAN 2001'))
-        Validator.marriageIsBeforeDeath(self.husband, self.wife, self.family)
+        Validator.marriageBeforeDeath(self.husband, self.wife, self.family)
 
     def testWifeDiedAfterMarriage(self):
         self.wife.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.wife.addTag(Classes.TagLine('1', 'DATE', '8 JAN 2001'))
-        Validator.marriageIsBeforeDeath(self.husband, self.wife, self.family)
+        Validator.marriageBeforeDeath(self.husband, self.wife, self.family)
 
     def testBothDiedAfterMarriage(self):
         self.husband.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.husband.addTag(Classes.TagLine('1', 'DATE', '8 JAN 2001'))
         self.wife.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.wife.addTag(Classes.TagLine('1', 'DATE', '8 JAN 2001'))
-        Validator.marriageIsBeforeDeath(self.husband, self.wife, self.family)
+        Validator.marriageBeforeDeath(self.husband, self.wife, self.family)
 
     def testHusbandDiedBeforeMarriage(self):
         self.husband.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.husband.addTag(Classes.TagLine('1', 'DATE', '8 JAN 1999'))
-        self.assertRaises(MarriageAfterDeath, Validator.marriageIsBeforeDeath, self.husband, self.wife, self.family)
+        self.assertRaises(MarriageAfterDeath, Validator.marriageBeforeDeath, self.husband, self.wife, self.family)
 
     def testWifeDiedBeforeMarriage(self):
         self.wife.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.wife.addTag(Classes.TagLine('1', 'DATE', '8 JAN 1999'))
-        self.assertRaises(MarriageAfterDeath, Validator.marriageIsBeforeDeath, self.husband, self.wife, self.family)
+        self.assertRaises(MarriageAfterDeath, Validator.marriageBeforeDeath, self.husband, self.wife, self.family)
 
     def testBothDiedBeforeMarriage(self):
         self.husband.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.husband.addTag(Classes.TagLine('1', 'DATE', '8 JAN 1999'))
         self.wife.addTag(Classes.TagLine('1', 'DEAT', 'Y'))
         self.wife.addTag(Classes.TagLine('1', 'DATE', '8 JAN 1999'))
-        self.assertRaises(MarriageAfterDeath, Validator.marriageIsBeforeDeath, self.husband, self.wife, self.family)
+        self.assertRaises(MarriageAfterDeath, Validator.marriageBeforeDeath, self.husband, self.wife, self.family)
 
     def testBothStillAlive(self):
-        Validator.marriageIsBeforeDeath(self.husband, self.wife, self.family)
+        Validator.marriageBeforeDeath(self.husband, self.wife, self.family)
 
 
 if __name__ == '__main__':
