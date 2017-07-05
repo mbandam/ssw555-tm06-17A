@@ -1,74 +1,65 @@
 import Domain
+from datetime import date
 
 
 class Error(Exception):
     pass
 
+
 class PersonException(Error):
-    def __init__(self):
-        self.message = 'This individual is invalid.'
+    def __init__(self, person, userStoryNumber):
+        self.message = 'ERROR: US{}: INDIVIDUAL {}: ' \
+            .format(userStoryNumber, person.getIndiId())
+
+
+class BirthInFuture(PersonException):
+    def __init__(self, person):
+        PersonException.__init__(self, person, '01')
+        self.message += 'They were born in the future on {}. Today is {}.'.format(person.getBirthDate(),
+                                                                                  date.today())
+
 
 class BirthAfterDeath(PersonException):
     def __init__(self, person):
-        name = person.getName()
-        indiId = person.getIndiId()
-        birthDate = person.getBirthDate()
-        deathDate = person.getDeathDate()
+        PersonException.__init__(self, person, '03')
+        self.message += 'They were born on {} after they died on {}.'.format(person.getBirthDate(),
+                                                                             person.getDeathDate())
 
-        self.message = "ERROR: INDIVIDUAL: US03: {}: {} was born on {} after they died on {}".format(indiId, name, birthDate, deathDate)
 
 class MarriageException(Error):
-    def __init__(self):
-        self.message = 'This marriage is invalid.'
+    def __init__(self, person, family, userStoryNumber):
+        if person.getSex() == Domain.Sex.MALE.value:
+            self.message = 'ERROR: US{}: FAMILY {}: HUSBAND {}: Marriage on {} is invalid. '.format(userStoryNumber,
+                                                                                                    family.getFamId(),
+                                                                                                    person.getIndiId(),
+                                                                                                    family.getMarriageDate())
+        else:
+            self.message = 'ERROR: US{}: FAMILY {}: WIFE {}: Marriage on {} is invalid. '.format(userStoryNumber,
+                                                                                                 family.getFamId(),
+                                                                                                 person.getIndiId(),
+                                                                                                 family.getMarriageDate())
+
+
+class MarriageBeforeBirth(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '02')
+        self.message += 'Their marriage occurred before their birth on {}.'.format(person.getBirthDate())
+
+
+class MarriageAfterDivorce(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '04')
+        self.message += 'Their divorce occurred before the marriage on {}.'.format(family.getDivorceDate())
+
 
 class MarriageAfterDeath(MarriageException):
     def __init__(self, person, family):
-        name = person.getName()
-        deathDate = person.getDeathDate()
-        marriageDate = family.getMarriageDate()
-        if person.getSex() == Domain.Sex.MALE.value and name is not None:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = ('ERROR: FAMILY: US05: ' + famId +': ' + 'Husband ('+ indId + ')' +  ' cannot get married on ' + marriageDate + ' as he died before on ' + deathDate)
-        elif name is not None:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = ('ERROR: FAMILY: US05: ' + famId +': ' + 'Wife ('+ indId + ')' + ' cannot get married on ' + marriageDate + ' as she died before on ' + deathDate)
-        elif person.getSex() == Domain.Sex.MALE:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = ('ERROR: FAMILY: US05: ' + famId +': ' + 'Husband ('+ indId + ')' +  ' cannot get married on ' + marriageDate + ' as he died before on ' + deathDate)
-        else:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = ('ERROR: FAMILY: US05: ' + famId +': ' + 'Wife ('+ indId + ')' + ' cannot get married on ' + marriageDate + 'as she died before on ' + deathDate)
+        MarriageException.__init__(self, person, family, '05')
+        self.message += 'They died before the marriage on {}.'.format(person.getDeathDate())
+
 
 class DivorceAfterDeath(MarriageException):
     def __init__(self, person, family):
-        name = person.getName()
-        deathDate = person.getDeathDate()
-        divorceDate = family.getDivorceDate()
-        if person.getSex() == Domain.Sex.MALE.value and name is not None:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = "ERROR: FAMILY: US06: {}: Husband ({}) cannot get divorced on {} as he died before on ({})".format(famId,indId,divorceDate,deathDate)
-        elif name is not None:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = "ERROR: FAMILY: US06: {}: Wife ({}) cannot get divorced on {} as she died before on ({})".format(famId,indId,divorceDate,deathDate)
-        elif person.getSex() == Domain.Sex.MALE:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = "ERROR: FAMILY: US06: {}: Husband ({}) cannot get divorced on {} as he died before on ({})".format(famId,indId,divorceDate,deathDate)
-        else:
-            famId = family.getFamId()
-            indId = person.getIndiId()
-            self.message = "ERROR: FAMILY: US06: {}: Wife ({}) cannot get divorced on {} as she died before on ({})".format(famId,indId,divorceDate,deathDate)
-
-class MarriageAfterDivorce(MarriageException):
-    def __init__(self, family):
-        marriageDate = family.getMarriageDate()
-        divorceDate = family.getDivorceDate()
-        famId = family.getFamId()
-
-        self.message = "ERROR: FAMILY: US04: {}: Family has marriage date ({}) later than their divorce date ({}).".format(famId, marriageDate, divorceDate)
+        MarriageException.__init__(self, person, family, '06')
+        self.message += 'They died {}, before their divorce on {}.'.format(person.getDeathDate(),
+                                                                           family.getDivorceDate())
