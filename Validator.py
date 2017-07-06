@@ -158,7 +158,7 @@ def birthBfMarriageOfParents(repository):
             childBdate = Util.parseDate(child.getBirthDate())
             if marriageDate > childBdate:
                 raise Exceptions.BirthBeforeMarriageOfParents(child,family)
-            if divorceDate is not None and relativedelta(childBdate, divorceDate).months > 9:
+            if divorceDate is not None and relativedelta(childBdate, divorceDate).months >= 9:
                 raise Exceptions.BirthAfterDivorceOfParents(child,family)
 
 def marriageAfter14(husband, wife,family):
