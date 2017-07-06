@@ -65,7 +65,7 @@ def birthBeforeParentDeath(person, repository):
 
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
-    functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture, divorceInFuture]
+    functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture, divorceInFuture, marriageAfter14]
     exceptionMessages = []
 
     try:
@@ -160,6 +160,17 @@ def birthBfMarriageOfParents(repository):
                 raise Exceptions.BirthBeforeMarriageOfParents(child,family)
             if divorceDate is not None and relativedelta(childBdate, divorceDate).months > 9:
                 raise Exceptions.BirthAfterDivorceOfParents(child,family)
+
+def marriageAfter14(husband, wife,family):
+    marriageDate = Util.parseDate(family.getMarriageDate())
+    husbandBirthDate = Util.parseDate(husband.getBirthDate())
+    wifeBirthDate = Util.parseDate(wife.getBirthDate())
+
+    if relativedelta(marriageDate, husbandBirthDate).years < 14:
+        raise Exceptions.MarriageBefore14(husband, family)
+    if relativedelta(marriageDate, husbandBirthDate).years < 14:
+        raise Exceptions.MarriageBefore14(wife, family)
+
 
 def inFuture(day):
     return day > datetime.today()

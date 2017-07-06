@@ -46,12 +46,12 @@ class BirthAfterMotherDeath(PersonException):
 class MarriageException(Error):
     def __init__(self, person, family, userStoryNumber):
         if person.getSex() == Domain.Sex.MALE.value:
-            self.message = 'ERROR: US{}: FAMILY {}: HUSBAND {}: Marriage on {} is invalid.'.format(userStoryNumber,
+            self.message = 'ERROR: US{}: FAMILY {}: HUSBAND {}: Marriage on {} is invalid. '.format(userStoryNumber,
                                                                                                     family.getFamId(),
                                                                                                     person.getIndiId(),
                                                                                                     family.getMarriageDate())
         else:
-            self.message = 'ERROR: US{}: FAMILY {}: WIFE {}: Marriage on {} is invalid.'.format(userStoryNumber,
+            self.message = 'ERROR: US{}: FAMILY {}: WIFE {}: Marriage on {} is invalid. '.format(userStoryNumber,
                                                                                                  family.getFamId(),
                                                                                                  person.getIndiId(),
                                                                                                  family.getMarriageDate())
@@ -100,3 +100,7 @@ class DivorceInFuture(MarriageException):
         MarriageException.__init__(self, person, family, '01')
         self.message = 'ERROR: US01: Family {}: This family has divorce date in the future on {} where Today is {}.'.format(family.getFamId(), family.getDivorceDate(), date.today())
 
+class MarriageBefore14(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '10')
+        self.message += 'This marriage occurred before this spouse (born on {}) turned 14.'.format(person.getBirthDate())
