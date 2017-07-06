@@ -5,13 +5,13 @@ from dateutil.relativedelta import relativedelta
 
 
 def validatePeople(repository):
-    functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150]
+    functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath]
     exceptionMessages = []
 
     for person in repository.getPeople():
         for fn in functions:
             try:
-                fn(person)
+                fn(person, repository)
             except Exceptions.PersonException as e:
                 exceptionMessages.append(e.message)
 
@@ -22,35 +22,52 @@ def validatePeople(repository):
         print("All individuals are valid.")
 
 
-def birthBeforeDeath(person):
+def birthBeforeDeath(person, repository):
     birthDate = Util.parseDate(person.getBirthDate())
     deathDate = Util.parseDate(person.getDeathDate())
 
     if deathDate is not None and birthDate is not None and birthDate > deathDate:
         raise Exceptions.BirthAfterDeath(person)
 
-def birthInFuture(person):
+def birthInFuture(person, repository):
     if inFuture(Util.parseDate(person.getBirthDate())):
         raise Exceptions.BirthInFuture(person)
 
-def deathInFuture(person):
+def deathInFuture(person, repository):
     if person.getDeathDate() is not None:
         if inFuture(Util.parseDate(person.getDeathDate())):
             raise Exceptions.DeathInFuture(person)
 
-def ageMorethan150(person):
+def ageMorethan150(person, repository):
     birthDate = Util.parseDate(person.getBirthDate())
     deathDate = Util.parseDate(person.getDeathDate())
     if deathDate is not None and birthDate is not None and (relativedelta(deathDate, birthDate).years >= 150):
         raise Exceptions.AgeMorethan150(person)
     if deathDate is None and birthDate is not None and (relativedelta(datetime.today(), birthDate).years >= 150):
         raise Exceptions.AgeMorethan150(person)
-        
+
+def birthBeforeParentDeath(person, repository):
+    famId = person.getChildFamilyId()
+
+    if famId is not None:
+        family = repository.getFamily(famId)
+        father = repository.getPerson(family.getHusbandId())
+        mother = repository.getPerson(family.getWifeId())
+
+        fatherDeathDate = Util.parseDate(father.getDeathDate())
+        motherDeathDate = Util.parseDate(mother.getDeathDate())
+        childBirthDate = Util.parseDate(person.getBirthDate())
+
+        if (fatherDeathDate is not None) and relativedelta(childBirthDate, fatherDeathDate).months >= 9:
+            raise Exceptions.BirthOver9MonthsAfterFatherDeath(person, father.getDeathDate())
+        elif (motherDeathDate is not None) and childBirthDate > motherDeathDate:
+            raise Exceptions.BirthAfterMotherDeath(person, mother.getDeathDate())
+
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture, divorceInFuture]
     exceptionMessages = []
-    
+
     try:
         birthBfMarriageOfParents(repository)
     except Exceptions.MarriageException as e:
@@ -59,7 +76,7 @@ def validateFamilies(repository):
     for family in repository.getFamilies():
         husband = repository.getPerson(family.getHusbandId())
         wife = repository.getPerson(family.getWifeId())
-        
+
         for fn in functions:
             try:
                 fn(husband, wife, family)
@@ -80,7 +97,7 @@ def divorceInFuture(husband, wife, family):
     if family.getDivorceDate() is not None:
         if inFuture(Util.parseDate(family.getDivorceDate())):
             raise Exceptions.DivorceInFuture(husband,family)
-        
+
 def marriageBeforeDeath(husband, wife, family):
     marriageDate = Util.parseDate(family.getMarriageDate())
     if marriageDate is None:
@@ -143,7 +160,6 @@ def birthBfMarriageOfParents(repository):
                 raise Exceptions.BirthBeforeMarriageOfParents(child,family)
             if divorceDate is not None and relativedelta(childBdate, divorceDate).months > 9:
                 raise Exceptions.BirthAfterDivorceOfParents(child,family)
-    
-        
+
 def inFuture(day):
     return day > datetime.today()

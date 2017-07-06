@@ -33,6 +33,16 @@ class AgeMorethan150(PersonException):
         PersonException.__init__(self, person, '07')
         self.message += 'The person is living for more than 150 years - birthdate is {}.'.format(person.getBirthDate())
 
+class BirthOver9MonthsAfterFatherDeath(PersonException):
+    def __init__(self, person, fatherDeathDate):
+        PersonException.__init__(self, person, '09')
+        self.message += 'This person was born on {}, over 9 months since their father died on {}.'.format(person.getBirthDate(), fatherDeathDate)
+
+class BirthAfterMotherDeath(PersonException):
+    def __init__(self, person, motherDeathDate):
+        PersonException.__init__(self, person, '09')
+        self.message += 'This person was born on {} after their mother died on {}.'.format(person.getBirthDate(), motherDeathDate)
+
 class MarriageException(Error):
     def __init__(self, person, family, userStoryNumber):
         if person.getSex() == Domain.Sex.MALE.value:
@@ -89,3 +99,4 @@ class DivorceInFuture(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '01')
         self.message = 'ERROR: US01: Family {}: This family has divorce date in the future on {} where Today is {}.'.format(family.getFamId(), family.getDivorceDate(), date.today())
+
