@@ -1,5 +1,6 @@
 import Exceptions
 import Util
+import Domain
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -191,6 +192,16 @@ def marriedToDescendant(husband, wife, family, repository):
                 if familyId not in checkedFamilies:
                     uncheckedFamilies.add(repository.getFamily(familyId))
 
+def differentMaleLastName(husband, wife, family, repository):
+    for childId in family.getChildrenIds():
+        child = repository.getPerson(childId)
+        if child.getSex() is Domain.Sex.MALE.value and child.getLastName() is not husband.getLastName():
+            raise Exceptions.differentMaleLastName(husband, family)
+
+
+
 
 def inFuture(day):
     return day > datetime.today()
+
+

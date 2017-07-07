@@ -69,6 +69,9 @@ class Person(TagList):
     def getName(self):
         return self.getArg("NAME")
 
+    def getLastName(self):
+        return self.getName().split()[-1:]
+
     def getSex(self):
         return self.getArg("SEX")
 
