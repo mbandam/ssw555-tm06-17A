@@ -16,36 +16,46 @@ class BirthInFuture(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '01')
         self.message += 'The person was born in the future on {} where Today is {}.'.format(person.getBirthDate(),
-                                                                                  date.today())
+                                                                                            date.today())
+
+
 class DeathInFuture(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '01')
         self.message += 'The person is died in the future on {} where Today is {}.'.format(person.getDeathDate(),
-                                                                                  date.today())
+                                                                                           date.today())
+
 
 class BirthAfterDeath(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '03')
         self.message += 'They were born on {} after they died on {}.'.format(person.getBirthDate(),
                                                                              person.getDeathDate())
+
+
 class AgeMorethan150(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '07')
         self.message += 'The person is living for more than 150 years - birthdate is {}.'.format(person.getBirthDate())
 
+
 class BirthOver9MonthsAfterFatherDeath(PersonException):
     def __init__(self, person, fatherDeathDate):
         PersonException.__init__(self, person, '09')
-        self.message += 'This person was born on {}, over 9 months since their father died on {}.'.format(person.getBirthDate(), fatherDeathDate)
+        self.message += 'This person was born on {}, over 9 months since their father died on {}.'.format(
+            person.getBirthDate(), fatherDeathDate)
+
 
 class BirthAfterMotherDeath(PersonException):
     def __init__(self, person, motherDeathDate):
         PersonException.__init__(self, person, '09')
-        self.message += 'This person was born on {} after their mother died on {}.'.format(person.getBirthDate(), motherDeathDate)
+        self.message += 'This person was born on {} after their mother died on {}.'.format(person.getBirthDate(),
+                                                                                           motherDeathDate)
+
 
 class MarriageException(Error):
     def __init__(self, person, family, userStoryNumber):
-        if person.getSex() == Domain.Sex.MALE.value:
+        if person.getSex() is Domain.Sex.MALE.value:
             self.message = 'ERROR: US{}: FAMILY {}: HUSBAND {}: Marriage on {} is invalid. '.format(userStoryNumber,
                                                                                                     family.getFamId(),
                                                                                                     person.getIndiId(),
@@ -80,27 +90,57 @@ class DivorceAfterDeath(MarriageException):
         MarriageException.__init__(self, person, family, '06')
         self.message += 'They died {}, before their divorce on {}.'.format(person.getDeathDate(),
                                                                            family.getDivorceDate())
+
+
 class BirthBeforeMarriageOfParents(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '08')
-        self.message = 'ANOMALY: US08: Family {}: Child {} born on {} before marriage on {}.'.format(family.getFamId(), person.getIndiId(), person.getBirthDate(), family.getMarriageDate())
-        
+        self.message = 'ANOMALY: US08: Family {}: Child {} born on {} before marriage on {}.'.format(family.getFamId(),
+                                                                                                     person.getIndiId(),
+                                                                                                     person.getBirthDate(),
+                                                                                                     family.getMarriageDate())
+
+
 class BirthAfterDivorceOfParents(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '08')
-        self.message = 'ANOMALY: US08: Family {}: Child {} born on {} after divorce on {}.'.format(family.getFamId(), person.getIndiId(), person.getBirthDate(), family.getMarriageDate())
-        
+        self.message = 'ANOMALY: US08: Family {}: Child {} born on {} after divorce on {}.'.format(family.getFamId(),
+                                                                                                   person.getIndiId(),
+                                                                                                   person.getBirthDate(),
+                                                                                                   family.getMarriageDate())
+
+
 class MarriageInFuture(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '01')
-        self.message = 'ERROR: US01: Family {}: This family has marriage date in the future on {} where Today is {}.'.format(family.getFamId(), family.getMarriageDate(), date.today())
+        self.message = 'ERROR: US01: Family {}: This family has marriage date in the future on {} where Today is {}.'.format(
+            family.getFamId(), family.getMarriageDate(), date.today())
+
 
 class DivorceInFuture(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '01')
-        self.message = 'ERROR: US01: Family {}: This family has divorce date in the future on {} where Today is {}.'.format(family.getFamId(), family.getDivorceDate(), date.today())
+        self.message = 'ERROR: US01: Family {}: This family has divorce date in the future on {} where Today is {}.'.format(
+            family.getFamId(), family.getDivorceDate(), date.today())
+
 
 class MarriageBefore14(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '10')
-        self.message += 'This marriage occurred before this spouse (born on {}) turned 14.'.format(person.getBirthDate())
+        self.message += 'This marriage occurred before this spouse (born on {}) turned 14.'.format(
+            person.getBirthDate())
+
+
+class differentMaleLastName(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '16')
+        self.message = 'This family has a male child without the "{}" last name.'.format(person.getLastName())
+
+
+class MarriedToDescendant(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '17')
+        if person.getSex() is Domain.Sex.MALE.value:
+            self.message += 'This husband cannot be married to "{}" she is his descendant.'.format(family.getWifeId())
+        else:
+            self.message += 'This wife cannot be married to "{}" he is her descendant.'.format(family.getHusbandId())
