@@ -104,3 +104,8 @@ class MarriageBefore14(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '10')
         self.message += 'This marriage occurred before this spouse (born on {}) turned 14.'.format(person.getBirthDate())
+
+class MarriedToDescendant(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '16')
+        self.message += 'This person cannot be married to one of their descendants.'

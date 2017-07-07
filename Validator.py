@@ -183,9 +183,10 @@ def marriedToDescendant(husband, wife, family, repository):
         family = uncheckedFamilies.pop()
         checkedFamilies.add(family)
         for childId in family.getChildrenIds():
-            if childId in {husband.getIndiId(), wife.getIndiId()}:
-                print()
-                # raise Exceptions.MarriageException()
+            if childId is husband.getIndiId():
+                raise Exceptions.MarriedToDescendant(husband, family)
+            if childId is wife.getIndiId():
+                raise Exceptions.MarriedToDescendant(wife, family)
             for familyId in repository.getPerson(childId).getSpousalFamilyIds():
                 if familyId not in checkedFamilies:
                     uncheckedFamilies.add(repository.getFamily(familyId))
