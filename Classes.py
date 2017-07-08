@@ -70,7 +70,7 @@ class Person(TagList):
         return self.getArg("NAME")
 
     def getLastName(self):
-        return self.getName().split()[-1:]
+        return self.getName().split()[-1].strip("/")
 
     def getSex(self):
         return self.getArg("SEX")
