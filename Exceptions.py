@@ -132,15 +132,16 @@ class MarriageBefore14(MarriageException):
 
 
 class differentMaleLastName(MarriageException):
-    def __init__(self, person, family):
-        MarriageException.__init__(self, person, family, '16')
-        self.message = 'This family has a male child without the "{}" last name.'.format(person.getLastName())
+    def __init__(self, husband, family, child):
+        MarriageException.__init__(self, husband, family, '16')
+        self.message += 'This family has a male child without the "{}" last name. Child Id: "{}" Child last name: "{}"'.format(
+            husband.getLastName(), child.getIndiId(), child.getLastName())
 
 
 class MarriedToDescendant(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '17')
         if person.getSex() is Domain.Sex.MALE.value:
-            self.message += 'This husband cannot be married to "{}" she is his descendant.'.format(family.getWifeId())
+            self.message += 'This husband cannot be married to female with Id "{}" he is her descendant.'.format(family.getWifeId())
         else:
-            self.message += 'This wife cannot be married to "{}" he is her descendant.'.format(family.getHusbandId())
+            self.message += 'This wife cannot be married to male with Id "{}" she is his descendant.'.format(family.getHusbandId())

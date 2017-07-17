@@ -72,7 +72,7 @@ def birthBeforeParentDeath(person, repository):
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
-                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, marriedToDescendant]
+                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -182,12 +182,12 @@ def marriedToDescendant(husband, wife, family, repository):
     checkedFamilies = set()
     while uncheckedFamilies:
         family = uncheckedFamilies.pop()
-        checkedFamilies.add(family)
+        checkedFamilies.add(family.getFamId())
         for childId in family.getChildrenIds():
-            if childId is husband.getIndiId():
-                raise Exceptions.MarriedToDescendant(husband, family)
-            if childId is wife.getIndiId():
+            if childId == husband.getIndiId():
                 raise Exceptions.MarriedToDescendant(wife, family)
+            if childId == wife.getIndiId():
+                raise Exceptions.MarriedToDescendant(husband, family)
             for familyId in repository.getPerson(childId).getSpousalFamilyIds():
                 if familyId not in checkedFamilies:
                     uncheckedFamilies.add(repository.getFamily(familyId))
@@ -195,8 +195,8 @@ def marriedToDescendant(husband, wife, family, repository):
 def differentMaleLastName(husband, wife, family, repository):
     for childId in family.getChildrenIds():
         child = repository.getPerson(childId)
-        if child.getSex() is Domain.Sex.MALE.value and child.getLastName() is not husband.getLastName():
-            raise Exceptions.differentMaleLastName(husband, family)
+        if child.getSex() is Domain.Sex.MALE.value and child.getLastName() != husband.getLastName():
+            raise Exceptions.differentMaleLastName(husband, family, child)
 
 
 
