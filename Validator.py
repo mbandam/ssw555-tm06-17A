@@ -16,6 +16,11 @@ def validatePeople(repository):
             except Exceptions.PersonException as e:
                 exceptionMessages.append(e.message)
 
+    try:
+        uniqueIndividualIds(repository)
+    except Exceptions.PersonException as e:
+        exceptionMessages.append(e.message)
+    
     if exceptionMessages:
         for message in exceptionMessages:
             print(message)
@@ -68,11 +73,22 @@ def birthBeforeParentDeath(person, repository):
         elif (motherDeathDate is not None) and childBirthDate > motherDeathDate:
             raise Exceptions.BirthAfterMotherDeath(person, mother.getDeathDate())
 
+def uniqueIndividualIds(repository):
+    individualIds = []
+    for person in repository.getPeople():
+        individualIds.append(person.getIndiId())
+    if len(individualIds) != len(set(individualIds)):
+        dupIds = set([x for x in individualIds if individualIds.count(x) > 1])
+        for individualId in dupIds:
+            individual = repository.getPerson(individualId)
+            raise Exceptions.UniqueIndividualIds(individual)
+
 
 # Print exception messages for all invalid families in the database
 def validateFamilies(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
-                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant]
+                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant, 
+                correctGenderForRole]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -84,6 +100,11 @@ def validateFamilies(repository):
             except Exceptions.MarriageException as e:
                 exceptionMessages.append(e.message)
 
+    try:
+        uniqueFamilyIds(repository)
+    except Exceptions.MarriageException as e:
+        exceptionMessages.append(e.message)
+    
     if exceptionMessages:
         for message in exceptionMessages:
             print(message)
@@ -198,9 +219,25 @@ def differentMaleLastName(husband, wife, family, repository):
         if child.getSex() is Domain.Sex.MALE.value and child.getLastName() != husband.getLastName():
             raise Exceptions.differentMaleLastName(husband, family, child)
 
+def correctGenderForRole(husband, wife, family, repository):
+    husbandSex = husband.getSex()
+    wifeSex = wife.getSex()
+    if husbandSex != 'M':
+        raise Exceptions.NotCorrectGenderForHusband(husband, family)
+    if wifeSex != 'F':
+        raise Exceptions.NotCorrectGenderForWife(wife, family)
 
-
-
+def uniqueFamilyIds(repository):
+    familyIds = []
+    for family in repository.getFamilies():
+        familyIds.append(family.getFamId())
+    if len(familyIds) != len(set(familyIds)):
+        dupIds = set([x for x in familyIds if familyIds.count(x) > 1])
+        for familyId in dupIds:
+            family = repository.getFamily(familyId)
+            husband = repository.getPerson(family.getHusbandId())
+            raise Exceptions.UniqueFamilyIds(husband, family)
+        
 def inFuture(day):
     return day > datetime.today()
 
