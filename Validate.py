@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-def validatePeople(repository):
+def people(repository):
     functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath]
     exceptionMessages = []
 
@@ -15,6 +15,11 @@ def validatePeople(repository):
                 fn(person, repository)
             except Exceptions.PersonException as e:
                 exceptionMessages.append(e.message)
+
+    try:
+        uniqueIndividualIds(repository)
+    except Exceptions.PersonException as e:
+        exceptionMessages.append(e.message)
 
     if exceptionMessages:
         for message in exceptionMessages:
@@ -69,10 +74,22 @@ def birthBeforeParentDeath(person, repository):
             raise Exceptions.BirthAfterMotherDeath(person, mother.getDeathDate())
 
 
+def uniqueIndividualIds(repository):
+    individualIds = []
+    for person in repository.getPeople():
+        individualIds.append(person.getIndiId())
+    if len(individualIds) != len(set(individualIds)):
+        dupIds = set([x for x in individualIds if individualIds.count(x) > 1])
+        for individualId in dupIds:
+            individual = repository.getPerson(individualId)
+            raise Exceptions.UniqueIndividualIds(individual)
+
+
 # Print exception messages for all invalid families in the database
-def validateFamilies(repository):
+def families(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
-                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant]
+                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant,
+                 correctGenderForRole, siblingsNotMarried, firstCousinsNotMarried]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -83,6 +100,11 @@ def validateFamilies(repository):
                 fn(husband, wife, family, repository)
             except Exceptions.MarriageException as e:
                 exceptionMessages.append(e.message)
+
+    try:
+        uniqueFamilyIds(repository)
+    except Exceptions.MarriageException as e:
+        exceptionMessages.append(e.message)
 
     if exceptionMessages:
         for message in exceptionMessages:
@@ -161,7 +183,7 @@ def marriageAfter14(husband, wife, family, repository):
 
     if relativedelta(marriageDate, husbandBirthDate).years < 14:
         raise Exceptions.MarriageBefore14(husband, family)
-    if relativedelta(marriageDate, husbandBirthDate).years < 14:
+    if relativedelta(marriageDate, wifeBirthDate).years < 14:
         raise Exceptions.MarriageBefore14(wife, family)
 
 
@@ -192,6 +214,7 @@ def marriedToDescendant(husband, wife, family, repository):
                 if familyId not in checkedFamilies:
                     uncheckedFamilies.add(repository.getFamily(familyId))
 
+
 def differentMaleLastName(husband, wife, family, repository):
     for childId in family.getChildrenIds():
         child = repository.getPerson(childId)
@@ -199,9 +222,70 @@ def differentMaleLastName(husband, wife, family, repository):
             raise Exceptions.differentMaleLastName(husband, family, child)
 
 
+def correctGenderForRole(husband, wife, family, repository):
+    husbandSex = husband.getSex()
+    wifeSex = wife.getSex()
+    if husbandSex != 'M':
+        raise Exceptions.NotCorrectGenderForHusband(husband, family)
+    if wifeSex != 'F':
+        raise Exceptions.NotCorrectGenderForWife(wife, family)
+
+
+def uniqueFamilyIds(repository):
+    familyIds = []
+    for family in repository.getFamilies():
+        familyIds.append(family.getFamId())
+    if len(familyIds) != len(set(familyIds)):
+        dupIds = set([x for x in familyIds if familyIds.count(x) > 1])
+        for familyId in dupIds:
+            family = repository.getFamily(familyId)
+            husband = repository.getPerson(family.getHusbandId())
+            raise Exceptions.UniqueFamilyIds(husband, family)
+
+
+def siblingsNotMarried(husband, wife, family, repository):
+    husbandId = husband.getIndiId()
+    wifeId = wife.getIndiId()
+
+    for otherFamily in repository.getFamilies():
+        childrenIds = otherFamily.getChildrenIds()
+        if husbandId in childrenIds and wifeId in childrenIds:
+            raise Exceptions.SiblingMarriage(husband, family, otherFamily)
+
+
+def firstCousinsNotMarried(husband, wife, family, repository):
+    husbandId = husband.getIndiId()
+    wifeId = husband.getIndiId()
+
+    husbandFamilyId = husband.getChildFamilyId()
+    wifeFamilyId = wife.getChildFamilyId()
+
+    if husbandFamilyId and wifeFamilyId:
+        husbandFamily = repository.getFamily(husbandFamilyId)
+        wifeFamily = repository.getFamily(wifeFamilyId)
+
+        husbandFatherId = husbandFamily.getHusbandId()
+        husbandMotherId = husbandFamily.getWifeId()
+        wifeFatherId = wifeFamily.getHusbandId()
+        wifeMotherId = wifeFamily.getWifeId()
+
+        parentIds = [husbandFatherId, husbandMotherId, wifeFatherId, wifeMotherId]
+        parents = []
+        for id in parentIds:
+            if id:
+                parents.append(repository.getPerson(id))
+
+        parentFamilyIds = []
+        for parent in parents:
+            childFamilyId = parent.getChildFamilyId()
+            if childFamilyId:
+                parentFamilyIds.append(childFamilyId)
+
+        for id in parentFamilyIds:
+            if parentFamilyIds.count(id) >= 2:
+                raise Exceptions.FirstCousinMarriage(husband, family)
 
 
 def inFuture(day):
-    return day > datetime.today()
-
-
+    if day:
+        return day > datetime.today()
