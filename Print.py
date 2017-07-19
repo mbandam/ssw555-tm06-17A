@@ -8,13 +8,12 @@ def people(repository):
     personTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
     print("Individuals:")
     for person in repository.getPeople():
-        birthDate = datetime.strptime(person.getBirthDate().replace(" ", "/"), "%d/%b/%Y").strftime('%m/%d/%Y')
-        age = int((datetime.today().date() - datetime.strptime(birthDate, '%m/%d/%Y').date()).days / 365)
-
+        birthday = datetime.strptime(person.getBirthDate().replace(" ", "/"), "%d/%b/%Y").strftime('%m/%d/%Y')
+        age = int((datetime.today().date() - datetime.strptime(birthday, '%m/%d/%Y').date()).days / 365)
         personTable.add_row([person.getIndiId(),
                              person.getName(),
                              person.getSex(),
-                             birthDate,
+                             birthday,
                              age,
                              person.getDeathDate() is None,
                              formatValue(person.getDeathDate()),
@@ -56,18 +55,13 @@ def families(repository):
                                "Children"]
     print("Families:")
     for family in repository.getFamilies():
-        divorceDate = formatDate(family.getDivorceDate())
-        marriageDate = formatDate(family.getMarriageDate())
-        husbandName = repository.getPerson(family.getHusbandId()).getName()
-        wifeName = repository.getPerson(family.getWifeId()).getName()
-
         familyTable.add_row([family.getFamId(),
-                             marriageDate,
-                             divorceDate,
+                             formatDate(family.getMarriageDate()),
+                             formatDate(family.getDivorceDate()),
                              family.getHusbandId(),
-                             husbandName,
+                             repository.getPerson(family.getHusbandId()).getName(),
                              family.getWifeId(),
-                             wifeName,
+                             repository.getPerson(family.getWifeId()).getName(),
                              family.getChildrenIds()])
     print(familyTable)
 
