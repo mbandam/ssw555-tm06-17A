@@ -166,7 +166,7 @@ class Family(TagList):
 
 
 class Repository(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, gedcomFile=None):
         # Database config
         self.dbClient = pymongo.MongoClient("localhost", 27017)
         self.db = self.dbClient.ssw555_tm06_17A
@@ -175,6 +175,8 @@ class Repository(object):
         # Declare buckets
         self.peopleDb = self.db.people
         self.familyDb = self.db.families
+        if gedcomFile is not None:
+            self.add(gedcomFile)
 
     def add(self, gedcomFile):
         print("Writing entries from '" + gedcomFile + "' to database...")

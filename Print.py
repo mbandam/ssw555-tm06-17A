@@ -3,7 +3,7 @@ from datetime import datetime
 import Domain
 
 
-def printPeople(repository):
+def people(repository):
     personTable = PrettyTable()
     personTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
     print("Individuals:")
@@ -23,7 +23,7 @@ def printPeople(repository):
     print(personTable)
 
 
-def printDeadPeople(repository):
+def deadPeople(repository):
     deathTable = PrettyTable()
     deathTable.field_names = ["ID", "Name", "Death Date"]
     for person in repository.getPeople():
@@ -33,7 +33,7 @@ def printDeadPeople(repository):
     print(deathTable)
 
 
-def printLivingMarriedPeople(repository):
+def livingMarriedPeople(repository):
     marriageTable = PrettyTable()
     marriageTable.field_names = ["ID", "Name", "Role", "Family ID"]
     for person in repository.getPeople():
@@ -50,7 +50,7 @@ def printLivingMarriedPeople(repository):
     print(marriageTable)
 
 
-def printFamilies(repository):
+def families(repository):
     familyTable = PrettyTable()
     familyTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name",
                                "Children"]

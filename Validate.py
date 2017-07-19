@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-def validatePeople(repository):
+def people(repository):
     functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath]
     exceptionMessages = []
 
@@ -86,7 +86,7 @@ def uniqueIndividualIds(repository):
 
 
 # Print exception messages for all invalid families in the database
-def validateFamilies(repository):
+def families(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
                  divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant,
                  correctGenderForRole]

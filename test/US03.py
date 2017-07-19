@@ -1,5 +1,5 @@
 import Classes
-import Validator
+import Validate
 import Exceptions
 import unittest
 
@@ -11,7 +11,7 @@ class US03Test(unittest.TestCase):
 
         for person in repository.getPeople():
             try:
-                Validator.birthBeforeDeath(person)
+                Validate.birthBeforeDeath(person)
             except Exceptions.PersonException as e:
                 exceptionMessages.append(e.message)
 
