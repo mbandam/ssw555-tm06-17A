@@ -89,7 +89,7 @@ def uniqueIndividualIds(repository):
 def families(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
                  divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant,
-                 correctGenderForRole]
+                 correctGenderForRole, siblingsNotMarried, firstCousinsNotMarried]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -245,13 +245,47 @@ def uniqueFamilyIds(repository):
 
 def siblingsNotMarried(husband, wife, family, repository):
     husbandId = husband.getIndiId()
-    wifeId = husband.getIndiId()
+    wifeId = wife.getIndiId()
 
     for otherFamily in repository.getFamilies():
-        childrenIds = family.getChildrenIds()
+        childrenIds = otherFamily.getChildrenIds()
         if husbandId in childrenIds and wifeId in childrenIds:
             raise Exceptions.SiblingMarriage(husband, family, otherFamily)
 
 
+def firstCousinsNotMarried(husband, wife, family, repository):
+    husbandId = husband.getIndiId()
+    wifeId = husband.getIndiId()
+
+    husbandFamilyId = husband.getChildFamilyId()
+    wifeFamilyId = wife.getChildFamilyId()
+
+    if husbandFamilyId and wifeFamilyId:
+        husbandFamily = repository.getFamily(husbandFamilyId)
+        wifeFamily = repository.getFamily(wifeFamilyId)
+
+        husbandFatherId = husbandFamily.getHusbandId()
+        husbandMotherId = husbandFamily.getWifeId()
+        wifeFatherId = wifeFamily.getHusbandId()
+        wifeMotherId = wifeFamily.getWifeId()
+
+        parentIds = [husbandFatherId, husbandMotherId, wifeFatherId, wifeMotherId]
+        parents = []
+        for id in parentIds:
+            if id:
+                parents.append(repository.getPerson(id))
+
+        parentFamilyIds = []
+        for parent in parents:
+            childFamilyId = parent.getChildFamilyId()
+            if childFamilyId:
+                parentFamilyIds.append(childFamilyId)
+
+        for id in parentFamilyIds:
+            if parentFamilyIds.count(id) >= 2:
+                raise Exceptions.FirstCousinMarriage(husband, family)
+
+
 def inFuture(day):
-    return day > datetime.today()
+    if day:
+        return day > datetime.today()
