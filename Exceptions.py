@@ -164,4 +164,9 @@ class UniqueFamilyIds(MarriageException):
     def __init__(self, husband, family):
         MarriageException.__init__(self, husband, family, '22')
         self.message = 'ERROR: US22: FAMILY {}: This family id is appeared more than once, So it is not valid.'.format(family.getFamId())
+
+class SiblingMarriage(MarriageException):
+    def __init__(self, person, family, otherFamily):
+        MarriageException.__init__(self, person, family, '18')
+        self.message += 'Husband {} and wife {} are siblings in family {}.'.format(family.getHusbandId(), family.getWifeId(), otherFamily.getFamId())
     

@@ -243,5 +243,15 @@ def uniqueFamilyIds(repository):
             raise Exceptions.UniqueFamilyIds(husband, family)
 
 
+def siblingsNotMarried(husband, wife, family, repository):
+    husbandId = husband.getIndiId()
+    wifeId = husband.getIndiId()
+
+    for otherFamily in repository.getFamilies():
+        childrenIds = family.getChildrenIds()
+        if husbandId in childrenIds and wifeId in childrenIds:
+            raise Exceptions.SiblingMarriage(husband, family, otherFamily)
+
+
 def inFuture(day):
     return day > datetime.today()
