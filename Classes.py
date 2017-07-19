@@ -67,10 +67,10 @@ class Person(TagList):
         return formatId(self.getArg("INDI"))
 
     def getName(self):
-        return self.getArg("NAME")
+        return self.getArg("NAME").replace("/", "")
 
     def getLastName(self):
-        return self.getName().split()[-1].strip("/")
+        return self.getName().split()[-1].replace("/", "")
 
     def getSex(self):
         return self.getArg("SEX")
@@ -166,7 +166,7 @@ class Family(TagList):
 
 
 class Repository(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, gedcomFile=None):
         # Database config
         self.dbClient = pymongo.MongoClient("localhost", 27017)
         self.db = self.dbClient.ssw555_tm06_17A
@@ -175,6 +175,8 @@ class Repository(object):
         # Declare buckets
         self.peopleDb = self.db.people
         self.familyDb = self.db.families
+        if gedcomFile is not None:
+            self.add(gedcomFile)
 
     def add(self, gedcomFile):
         print("Writing entries from '" + gedcomFile + "' to database...")
@@ -234,84 +236,6 @@ class Repository(object):
                     print("Ignoring '{}': unrecognized level+tag combination".format(line))
                 else:
                     tags.append(TagLine(level, tag, args))
-
-    def printFamilies(self):
-        familyTable = PrettyTable()
-        familyTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name",
-                                   "Children"]
-        print("Families:")
-        for family in self.familyDb.find({}):
-
-            family['hus_name'] = "hus_name"
-            family['wife_name'] = "wife_name"
-            if family['divorceDate'] is None:
-                family['divorceDate'] = "NA"
-            else:
-                family['divorceDate'] = family['divorceDate'].replace(" ", "/")
-                family['divorceDate'] = datetime.strptime(family['divorceDate'], "%d/%b/%Y").strftime('%Y-%m-%d')
-            if family['marriageDate'] is None:
-                family['marriageDate'] = "NA"
-            else:
-                family['marriageDate'] = family['marriageDate'].replace(" ", "/")
-                family['marriageDate'] = datetime.strptime(family['marriageDate'], "%d/%b/%Y").strftime('%Y-%m-%d')
-
-            family['hus_name'] = self.getPerson(family['husbandId']).getName()
-            family['wife_name'] = self.getPerson(family['wifeId']).getName()
-
-            familyTable.add_row([family['famId'], family['marriageDate'], family['divorceDate'], family['husbandId'],
-                                 family['hus_name'], family['wifeId'], family['wife_name'], family['childrenIds']])
-        print(familyTable)
-
-    def printPeople(self):
-        personTable = PrettyTable()
-        personTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
-        print("Individuals:")
-        for person in self.peopleDb.find({}):
-            # print(person)
-            person['birth'] = person['birth'].replace(" ", "/")
-            b_date = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%m/%d/%Y')
-            b_date = datetime.strptime(b_date, '%m/%d/%Y').date()
-            person['age'] = int((datetime.today().date() - b_date).days / 365)
-            person['birth'] = datetime.strptime(person['birth'], "%d/%b/%Y").strftime('%Y-%m-%d')
-            person['child'] = "NA"
-            person['alive'] = "True"
-            person['death'] = "NA"
-            person['spouse'] = "NA"
-
-            lastTag = None
-            for tagLineString in person['tags']:
-                tagLine = tagLineString.split(" ", maxsplit=2)
-
-                level = tagLine[0]
-                tag = tagLine[1]
-
-                args = ""
-                if len(tagLine) > 2:
-                    args = tagLine[2]
-
-                if args == "FAMS" or args == "FAMC":
-                    args, tag = tag, args
-
-                # person['alive'] = "True"
-                # person['death'] = "NA"
-
-                if tag == "FAMC":
-                    person['child'] = "{}".format(args.strip("@"))
-                elif tag == "FAMS":
-                    person['spouse'] = "{}".format(args.strip("@"))
-                elif tag == "DEAT":
-                    person['alive'] = "False"
-                elif tag == "DATE":
-                    if lastTag == "DEAT":
-                        person['death'] = args
-                        person['death'] = person['death'].replace(" ", "/")
-                        person['death'] = datetime.strptime(person['death'], "%d/%b/%Y").strftime('%Y-%m-%d')
-
-                lastTag = tag
-
-            personTable.add_row([person['indId'], person['name'], person['sex'], person['birth'],
-                                 person['age'], person['alive'], person['death'], person['child'], person['spouse']])
-        print(personTable)
 
     def getPeople(self):
         people = []

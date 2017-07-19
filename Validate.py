@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-def validatePeople(repository):
+def people(repository):
     functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath]
     exceptionMessages = []
 
@@ -20,7 +20,7 @@ def validatePeople(repository):
         uniqueIndividualIds(repository)
     except Exceptions.PersonException as e:
         exceptionMessages.append(e.message)
-    
+
     if exceptionMessages:
         for message in exceptionMessages:
             print(message)
@@ -73,6 +73,7 @@ def birthBeforeParentDeath(person, repository):
         elif (motherDeathDate is not None) and childBirthDate > motherDeathDate:
             raise Exceptions.BirthAfterMotherDeath(person, mother.getDeathDate())
 
+
 def uniqueIndividualIds(repository):
     individualIds = []
     for person in repository.getPeople():
@@ -85,10 +86,10 @@ def uniqueIndividualIds(repository):
 
 
 # Print exception messages for all invalid families in the database
-def validateFamilies(repository):
+def families(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
-                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant, 
-                correctGenderForRole]
+                 divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant,
+                 correctGenderForRole]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -104,7 +105,7 @@ def validateFamilies(repository):
         uniqueFamilyIds(repository)
     except Exceptions.MarriageException as e:
         exceptionMessages.append(e.message)
-    
+
     if exceptionMessages:
         for message in exceptionMessages:
             print(message)
@@ -182,7 +183,7 @@ def marriageAfter14(husband, wife, family, repository):
 
     if relativedelta(marriageDate, husbandBirthDate).years < 14:
         raise Exceptions.MarriageBefore14(husband, family)
-    if relativedelta(marriageDate, husbandBirthDate).years < 14:
+    if relativedelta(marriageDate, wifeBirthDate).years < 14:
         raise Exceptions.MarriageBefore14(wife, family)
 
 
@@ -213,11 +214,13 @@ def marriedToDescendant(husband, wife, family, repository):
                 if familyId not in checkedFamilies:
                     uncheckedFamilies.add(repository.getFamily(familyId))
 
+
 def differentMaleLastName(husband, wife, family, repository):
     for childId in family.getChildrenIds():
         child = repository.getPerson(childId)
         if child.getSex() is Domain.Sex.MALE.value and child.getLastName() != husband.getLastName():
             raise Exceptions.differentMaleLastName(husband, family, child)
+
 
 def correctGenderForRole(husband, wife, family, repository):
     husbandSex = husband.getSex()
@@ -226,6 +229,7 @@ def correctGenderForRole(husband, wife, family, repository):
         raise Exceptions.NotCorrectGenderForHusband(husband, family)
     if wifeSex != 'F':
         raise Exceptions.NotCorrectGenderForWife(wife, family)
+
 
 def uniqueFamilyIds(repository):
     familyIds = []
@@ -237,8 +241,7 @@ def uniqueFamilyIds(repository):
             family = repository.getFamily(familyId)
             husband = repository.getPerson(family.getHusbandId())
             raise Exceptions.UniqueFamilyIds(husband, family)
-        
+
+
 def inFuture(day):
     return day > datetime.today()
-
-
