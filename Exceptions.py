@@ -150,6 +150,16 @@ class MarriedToDescendant(MarriageException):
         else:
             self.message += 'This wife cannot be married to male with Id "{}" she is his descendant.'.format(family.getHusbandId())
 
+class SiblingMarriage(MarriageException):
+    def __init__(self, person, family, otherFamily):
+        MarriageException.__init__(self, person, family, '18')
+        self.message += 'Husband {} and wife {} are siblings in family {}.'.format(family.getHusbandId(), family.getWifeId(), otherFamily.getFamId())
+
+class FirstCousinMarriage(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '19')
+        self.message += 'Husband {} and wife {} are first cousins.'.format(family.getHusbandId(), family.getWifeId())
+
 class NotCorrectGenderForHusband(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '21')
