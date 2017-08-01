@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
-from datetime import datetime
+from datetime import datetime, timedelta
 import Domain
-
+import Util
 
 def people(repository):
     personTable = PrettyTable()
@@ -31,7 +31,28 @@ def deadPeople(repository):
     print('US29: The following people are dead:')
     print(deathTable)
 
+def recentDeadPeople(repository):
+    recentDeathTable = PrettyTable()
+    recentDeathTable.field_names = ["ID", "Name", "Death Date"]
+    for person in repository.getPeople():
+        if person.getDeathDate() is not None and (datetime.today() - timedelta(days=30)) <= Util.parseDate(person.getDeathDate()) <= datetime.today():
+            recentDeathTable.add_row([person.getIndiId(), person.getName(), person.getDeathDate()])
+    print('US36: List of recently dead prople')
+    print(recentDeathTable)
 
+def upcomingBirthdays(repository):
+    upcomingBirthdayTable = PrettyTable()
+    upcomingBirthdayTable.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        birthDate = Util.parseDate(person.getBirthDate())
+        currentYear = datetime.now().year
+        birthDate = str(birthDate.day) + " " + str(birthDate.month) + " " + str(currentYear)
+        birthDate = datetime.strptime(birthDate, '%d %m %Y')
+        if person.getBirthDate() is not None and (datetime.today()) <= birthDate <= (datetime.today() + timedelta(days=30)):
+            upcomingBirthdayTable.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US38: List of upcoming birthdays')
+    print(upcomingBirthdayTable)
+    
 def livingMarriedPeople(repository):
     marriageTable = PrettyTable()
     marriageTable.field_names = ["ID", "Name", "Role", "Family ID"]
