@@ -1,5 +1,5 @@
 from prettytable import PrettyTable
-from datetime import datetime
+from datetime import datetime, timedelta, date
 import Domain
 
 
@@ -53,7 +53,6 @@ def families(repository):
     familyTable = PrettyTable()
     familyTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name",
                                "Children"]
-    print("Families:")
     for family in repository.getFamilies():
         familyTable.add_row([family.getFamId(),
                              formatDate(family.getMarriageDate()),
@@ -63,7 +62,28 @@ def families(repository):
                              family.getWifeId(),
                              repository.getPerson(family.getWifeId()).getName(),
                              family.getChildrenIds()])
+    print("Families:")
     print(familyTable)
+
+
+def upcomingAnniversaries(repository):
+    anniversaryTable = PrettyTable()
+    thirtyDaysAgo = datetime.now().date() - timedelta(30)
+    anniversaryTable.field_names = ["ID", "Anniversary Date", "Husband ID", "Husband Name", "Wife ID", "Wife Name"]
+    for family in repository.getFamilies():
+        if getDateFromString(family.getMarriageDate()) >= thirtyDaysAgo:
+            anniversaryTable.add_row([family.getFamId(),
+                                      formatDate(family.getMarriageDate()),
+                                      family.getHusbandId(),
+                                      repository.getPerson(family.getHusbandId()).getName(),
+                                      family.getWifeId(),
+                                      repository.getPerson(family.getWifeId()).getName()])
+            print("Recent Anniversaries:")
+            print(anniversaryTable)
+
+
+def getDateFromString(string):
+    return date(*map(int, formatDate(string).split('-')))
 
 
 def formatDate(date):

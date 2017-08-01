@@ -12,6 +12,7 @@ def main():
     Print.families(repository)
     Print.deadPeople(repository)
     Print.livingMarriedPeople(repository)
+    Print.upcomingAnniversaries(repository)
 
     Validate.people(repository)
     Validate.families(repository)
