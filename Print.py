@@ -105,3 +105,12 @@ def upcomingAnniversaries(repository):
                                       repository.getPerson(family.getWifeId()).getName()])
     print("US39: Recent Anniversaries:")
     print(anniversaryTable)
+
+def livingSinglePeople(repository):
+    singleTable = PrettyTable()
+    singleTable.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        if person.getDeathDate() is None and not person.getSpousalFamilyIds():
+            singleTable.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US31: The following people are living and single:')
+    print(singleTable)
