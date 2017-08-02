@@ -55,12 +55,7 @@ class BirthAfterMotherDeath(PersonException):
 class UniqueIndividualIds(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '22')
-        self.message += 'This individual id is appeared more than once, So it is not valid.'.format()
-
-class PersonBadDateFormat(PersonException):
-    def __init__(self, person):
-        PersonException.__init__(self, person, '42')
-        self.message += 'This individual contains a bad date format: {}.'.format(person.getDates())
+        self.message += 'This individual id is appeared more than once, So it is not valid.'.format()       
 
 class MarriageException(Error):
     def __init__(self, person, family, userStoryNumber):
@@ -179,9 +174,4 @@ class UniqueFamilyIds(MarriageException):
     def __init__(self, husband, family):
         MarriageException.__init__(self, husband, family, '22')
         self.message = 'ERROR: US22: FAMILY {}: This family id is appeared more than once, So it is not valid.'.format(family.getFamId())
-
-class FamilyBadDateFormat(MarriageException):
-    def __init__(self, person, family):
-        MarriageException.__init__(self, person, family, '42')
-        self.message = 'This family contains a bad date format: {}.'.format(family.getDates())
     

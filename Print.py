@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 from datetime import datetime, timedelta
-from Util import formatDate, formatValue
+from Util import formatDate, formatValue, parseDate
 from Domain import Sex
 
 def people(repository):
@@ -35,7 +35,7 @@ def recentDeadPeople(repository):
     recentDeathTable = PrettyTable()
     recentDeathTable.field_names = ["ID", "Name", "Death Date"]
     for person in repository.getPeople():
-        if person.getDeathDate() is not None and (datetime.today() - timedelta(days=30)) <= Util.parseDate(person.getDeathDate()) <= datetime.today():
+        if person.getDeathDate() is not None and (datetime.today() - timedelta(days=30)) <= parseDate(person.getDeathDate()) <= datetime.today():
             recentDeathTable.add_row([person.getIndiId(), person.getName(), person.getDeathDate()])
     print('US36: List of recently dead prople')
     print(recentDeathTable)
@@ -44,7 +44,7 @@ def upcomingBirthdays(repository):
     upcomingBirthdayTable = PrettyTable()
     upcomingBirthdayTable.field_names = ["ID", "Name", "Birth Date"]
     for person in repository.getPeople():
-        birthDate = Util.parseDate(person.getBirthDate())
+        birthDate = parseDate(person.getBirthDate())
         currentYear = datetime.now().year
         birthDate = str(birthDate.day) + " " + str(birthDate.month) + " " + str(currentYear)
         birthDate = datetime.strptime(birthDate, '%d %m %Y')

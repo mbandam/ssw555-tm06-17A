@@ -1,5 +1,4 @@
 from enum import Enum
-from datetime import datetime
 
 def validTags():
     return {"0 INDI",
@@ -20,5 +19,3 @@ def validTags():
 class Sex(Enum):
         MALE = 'M'
         FEMALE = 'F'
-
-

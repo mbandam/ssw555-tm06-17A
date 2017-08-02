@@ -1,5 +1,7 @@
 import Domain
 import pymongo
+from prettytable import PrettyTable
+from datetime import datetime
 
 
 class TagLine(object):
@@ -58,9 +60,6 @@ class TagList(object):
             if tagLine.tag == targetTag:
                 args.append(tagLine.args)
         return args
-
-    def getDates(self):
-        return self.getArgs('DATE')
 
 
 class Person(TagList):
