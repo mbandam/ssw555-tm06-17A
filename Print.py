@@ -114,3 +114,12 @@ def livingSinglePeople(repository):
             singleTable.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
     print('US31: The following people are living and single:')
     print(singleTable)
+
+def recentBirths(repository):
+    table = PrettyTable()
+    table.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        if person.getBirthDate() is not None and (datetime.today() - timedelta(days=30)) <= parseDate(person.getBirthDate()) and parseDate(person.getBirthDate()) <= datetime.today():
+            table.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US35: List of recently born people')
+    print(table)
