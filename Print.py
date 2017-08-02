@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
-from datetime import datetime
-import Domain
-
+from datetime import datetime, timedelta
+from Util import formatDate, formatValue, parseDate
+from Domain import Sex
 
 def people(repository):
     personTable = PrettyTable()
@@ -31,7 +31,28 @@ def deadPeople(repository):
     print('US29: The following people are dead:')
     print(deathTable)
 
+def recentDeadPeople(repository):
+    recentDeathTable = PrettyTable()
+    recentDeathTable.field_names = ["ID", "Name", "Death Date"]
+    for person in repository.getPeople():
+        if person.getDeathDate() is not None and (datetime.today() - timedelta(days=30)) <= parseDate(person.getDeathDate()) <= datetime.today():
+            recentDeathTable.add_row([person.getIndiId(), person.getName(), person.getDeathDate()])
+    print('US36: List of recently dead prople')
+    print(recentDeathTable)
 
+def upcomingBirthdays(repository):
+    upcomingBirthdayTable = PrettyTable()
+    upcomingBirthdayTable.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        birthDate = parseDate(person.getBirthDate())
+        currentYear = datetime.now().year
+        birthDate = str(birthDate.day) + " " + str(birthDate.month) + " " + str(currentYear)
+        birthDate = datetime.strptime(birthDate, '%d %m %Y')
+        if person.getBirthDate() is not None and (datetime.today()) <= birthDate <= (datetime.today() + timedelta(days=30)):
+            upcomingBirthdayTable.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US38: List of upcoming birthdays')
+    print(upcomingBirthdayTable)
+    
 def livingMarriedPeople(repository):
     marriageTable = PrettyTable()
     marriageTable.field_names = ["ID", "Name", "Role", "Family ID"]
@@ -39,7 +60,7 @@ def livingMarriedPeople(repository):
         if person.getDeathDate() is None and person.getSpousalFamilyIds():
             for familyId in person.getSpousalFamilyIds():
                 if repository.getFamily(familyId).getDivorceDate() is None:
-                    if person.getSex() == Domain.Sex.MALE.value:
+                    if person.getSex() == Sex.MALE.value:
                         role = 'Husband'
                     else:
                         role = 'Wife'
@@ -53,7 +74,6 @@ def families(repository):
     familyTable = PrettyTable()
     familyTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name",
                                "Children"]
-    print("Families:")
     for family in repository.getFamilies():
         familyTable.add_row([family.getFamId(),
                              formatDate(family.getMarriageDate()),
@@ -63,18 +83,43 @@ def families(repository):
                              family.getWifeId(),
                              repository.getPerson(family.getWifeId()).getName(),
                              family.getChildrenIds()])
+    print("Families:")
     print(familyTable)
 
 
-def formatDate(date):
-    if date is None:
-        return "NA"
-    else:
-        return datetime.strptime(date.replace(" ", "/"), "%d/%b/%Y").strftime('%Y-%m-%d')
+def upcomingAnniversaries(repository):
+    anniversaryTable = PrettyTable()
+    anniversaryTable.field_names = ["ID", "Anniversary", "Husband ID", "Husband Name", "Wife ID", "Wife Name"]
+    for family in repository.getFamilies():
+        marriageDay = formatDate(family.getMarriageDate())[4:]
+        currentYear = str(datetime.now().year)
+        anniversary = datetime.strptime(currentYear + marriageDay, "%Y-%m-%d").date()
+        now = datetime.now().date()
+        thirtyDaysAgo = now - timedelta(30)
+        if thirtyDaysAgo <= anniversary <= now:
+            anniversaryTable.add_row([family.getFamId(),
+                                      formatDate(family.getMarriageDate())[5:],
+                                      family.getHusbandId(),
+                                      repository.getPerson(family.getHusbandId()).getName(),
+                                      family.getWifeId(),
+                                      repository.getPerson(family.getWifeId()).getName()])
+    print("US39: Recent Anniversaries:")
+    print(anniversaryTable)
 
+def livingSinglePeople(repository):
+    singleTable = PrettyTable()
+    singleTable.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        if person.getDeathDate() is None and not person.getSpousalFamilyIds():
+            singleTable.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US31: The following people are living and single:')
+    print(singleTable)
 
-def formatValue(value):
-    if value is None or not value:
-        return 'NA'
-    else:
-        return value
+def recentBirths(repository):
+    table = PrettyTable()
+    table.field_names = ["ID", "Name", "Birth Date"]
+    for person in repository.getPeople():
+        if person.getBirthDate() is not None and (datetime.today() - timedelta(days=30)) <= parseDate(person.getBirthDate()) and parseDate(person.getBirthDate()) <= datetime.today():
+            table.add_row([person.getIndiId(), person.getName(), person.getBirthDate()])
+    print('US35: List of recently born people')
+    print(table)
