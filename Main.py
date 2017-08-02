@@ -13,7 +13,9 @@ def main():
     Print.deadPeople(repository)
     Print.livingMarriedPeople(repository)
     Print.upcomingAnniversaries(repository)
-
+    Print.recentDeadPeople(repository)
+    Print.upcomingBirthdays(repository)
+    
     Validate.people(repository)
     Validate.families(repository)
 
