@@ -1,12 +1,12 @@
 import Exceptions
-import Util
-import Domain
+from Domain import Sex
+from Util import formatDate, parseDate
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
 def people(repository):
-    functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath]
+    functions = [birthBeforeDeath, birthInFuture, deathInFuture, ageMorethan150, birthBeforeParentDeath, personDatesAreValid]
     exceptionMessages = []
 
     for person in repository.getPeople():
@@ -29,27 +29,27 @@ def people(repository):
 
 
 def birthBeforeDeath(person, repository):
-    birthDate = Util.parseDate(person.getBirthDate())
-    deathDate = Util.parseDate(person.getDeathDate())
+    birthDate = parseDate(person.getBirthDate())
+    deathDate = parseDate(person.getDeathDate())
 
     if deathDate is not None and birthDate is not None and birthDate > deathDate:
         raise Exceptions.BirthAfterDeath(person)
 
 
 def birthInFuture(person, repository):
-    if inFuture(Util.parseDate(person.getBirthDate())):
+    if inFuture(parseDate(person.getBirthDate())):
         raise Exceptions.BirthInFuture(person)
 
 
 def deathInFuture(person, repository):
     if person.getDeathDate() is not None:
-        if inFuture(Util.parseDate(person.getDeathDate())):
+        if inFuture(parseDate(person.getDeathDate())):
             raise Exceptions.DeathInFuture(person)
 
 
 def ageMorethan150(person, repository):
-    birthDate = Util.parseDate(person.getBirthDate())
-    deathDate = Util.parseDate(person.getDeathDate())
+    birthDate = parseDate(person.getBirthDate())
+    deathDate = parseDate(person.getDeathDate())
     if deathDate is not None and birthDate is not None and (relativedelta(deathDate, birthDate).years >= 150):
         raise Exceptions.AgeMorethan150(person)
     if deathDate is None and birthDate is not None and (relativedelta(datetime.today(), birthDate).years >= 150):
@@ -64,9 +64,9 @@ def birthBeforeParentDeath(person, repository):
         father = repository.getPerson(family.getHusbandId())
         mother = repository.getPerson(family.getWifeId())
 
-        fatherDeathDate = Util.parseDate(father.getDeathDate())
-        motherDeathDate = Util.parseDate(mother.getDeathDate())
-        childBirthDate = Util.parseDate(person.getBirthDate())
+        fatherDeathDate = parseDate(father.getDeathDate())
+        motherDeathDate = parseDate(mother.getDeathDate())
+        childBirthDate = parseDate(person.getBirthDate())
 
         if (fatherDeathDate is not None) and relativedelta(childBirthDate, fatherDeathDate).months >= 9:
             raise Exceptions.BirthOver9MonthsAfterFatherDeath(person, father.getDeathDate())
@@ -84,12 +84,18 @@ def uniqueIndividualIds(repository):
             individual = repository.getPerson(individualId)
             raise Exceptions.UniqueIndividualIds(individual)
 
+def personDatesAreValid(person, repository):
+            try:
+                datesAreValid(person.getDates())
+            except ValueError as e:
+                raise Exceptions.PersonBadDateFormat(person)
+
 
 # Print exception messages for all invalid families in the database
 def families(repository):
     functions = [marriageBeforeDeath, birthBeforeMarriage, divorceBeforeDeath, marriageBeforeDivorce, marriageInFuture,
                  divorceInFuture, marriageAfter14, birthBfMarriageOfParents, differentMaleLastName, marriedToDescendant,
-                 correctGenderForRole, siblingsNotMarried, firstCousinsNotMarried]
+                 correctGenderForRole, siblingsNotMarried, firstCousinsNotMarried, familyDatesAreValid]
 
     exceptionMessages = []
     for family in repository.getFamilies():
@@ -114,22 +120,22 @@ def families(repository):
 
 
 def marriageInFuture(husband, wife, family, repository):
-    if inFuture(Util.parseDate(family.getMarriageDate())):
+    if inFuture(parseDate(family.getMarriageDate())):
         raise Exceptions.MarriageInFuture(husband, family)
 
 
 def divorceInFuture(husband, wife, family, repository):
     if family.getDivorceDate() is not None:
-        if inFuture(Util.parseDate(family.getDivorceDate())):
+        if inFuture(parseDate(family.getDivorceDate())):
             raise Exceptions.DivorceInFuture(husband, family)
 
 
 def marriageBeforeDeath(husband, wife, family, repository):
-    marriageDate = Util.parseDate(family.getMarriageDate())
+    marriageDate = parseDate(family.getMarriageDate())
     if marriageDate is None:
         return
-    husbandDeathDate = Util.parseDate(husband.getDeathDate())
-    wifeDeathDate = Util.parseDate(wife.getDeathDate())
+    husbandDeathDate = parseDate(husband.getDeathDate())
+    wifeDeathDate = parseDate(wife.getDeathDate())
     if husbandDeathDate is None and wifeDeathDate is None:
         return
     if husbandDeathDate is not None and husbandDeathDate < marriageDate:
@@ -140,11 +146,11 @@ def marriageBeforeDeath(husband, wife, family, repository):
 
 
 def birthBeforeMarriage(husband, wife, family, repository):
-    marriageDate = Util.parseDate(family.getMarriageDate())
+    marriageDate = parseDate(family.getMarriageDate())
     if marriageDate is None:
         return
-    husbandBirthday = Util.parseDate(husband.getBirthDate())
-    wifeBirthday = Util.parseDate(wife.getBirthDate())
+    husbandBirthday = parseDate(husband.getBirthDate())
+    wifeBirthday = parseDate(wife.getBirthDate())
     if husbandBirthday is None and wifeBirthday is None:
         return
     if husbandBirthday is not None and husbandBirthday > marriageDate:
@@ -154,11 +160,11 @@ def birthBeforeMarriage(husband, wife, family, repository):
 
 
 def divorceBeforeDeath(husband, wife, family, repository):
-    divorceDate = Util.parseDate(family.getDivorceDate())
+    divorceDate = parseDate(family.getDivorceDate())
     if divorceDate is None:
         return
-    husbandDeathDate = Util.parseDate(husband.getDeathDate())
-    wifeDeathDate = Util.parseDate(wife.getDeathDate())
+    husbandDeathDate = parseDate(husband.getDeathDate())
+    wifeDeathDate = parseDate(wife.getDeathDate())
     if husbandDeathDate is None and wifeDeathDate is None:
         return
     if husbandDeathDate is not None and husbandDeathDate < divorceDate:
@@ -169,17 +175,17 @@ def divorceBeforeDeath(husband, wife, family, repository):
 
 
 def marriageBeforeDivorce(husband, wife, family, repository):
-    marriageDate = Util.parseDate(family.getMarriageDate())
-    divorceDate = Util.parseDate(family.getDivorceDate())
+    marriageDate = parseDate(family.getMarriageDate())
+    divorceDate = parseDate(family.getDivorceDate())
 
     if divorceDate is not None and marriageDate is not None and marriageDate > divorceDate:
         raise Exceptions.MarriageAfterDivorce(husband, family)
 
 
 def marriageAfter14(husband, wife, family, repository):
-    marriageDate = Util.parseDate(family.getMarriageDate())
-    husbandBirthDate = Util.parseDate(husband.getBirthDate())
-    wifeBirthDate = Util.parseDate(wife.getBirthDate())
+    marriageDate = parseDate(family.getMarriageDate())
+    husbandBirthDate = parseDate(husband.getBirthDate())
+    wifeBirthDate = parseDate(wife.getBirthDate())
 
     if relativedelta(marriageDate, husbandBirthDate).years < 14:
         raise Exceptions.MarriageBefore14(husband, family)
@@ -188,11 +194,11 @@ def marriageAfter14(husband, wife, family, repository):
 
 
 def birthBfMarriageOfParents(husband, wife, family, repository):
-    marriageDate = Util.parseDate(family.getMarriageDate())
-    divorceDate = Util.parseDate(family.getDivorceDate())
+    marriageDate = parseDate(family.getMarriageDate())
+    divorceDate = parseDate(family.getDivorceDate())
     for cid in family.getChildrenIds():
         child = repository.getPerson(cid)
-        childBdate = Util.parseDate(child.getBirthDate())
+        childBdate = parseDate(child.getBirthDate())
         if marriageDate > childBdate:
             raise Exceptions.BirthBeforeMarriageOfParents(child, family)
         if divorceDate is not None and relativedelta(childBdate, divorceDate).months >= 9:
@@ -218,7 +224,7 @@ def marriedToDescendant(husband, wife, family, repository):
 def differentMaleLastName(husband, wife, family, repository):
     for childId in family.getChildrenIds():
         child = repository.getPerson(childId)
-        if child.getSex() is Domain.Sex.MALE.value and child.getLastName() != husband.getLastName():
+        if child.getSex() is Sex.MALE.value and child.getLastName() != husband.getLastName():
             raise Exceptions.differentMaleLastName(husband, family, child)
 
 
@@ -285,6 +291,15 @@ def firstCousinsNotMarried(husband, wife, family, repository):
             if parentFamilyIds.count(id) >= 2:
                 raise Exceptions.FirstCousinMarriage(husband, family)
 
+def familyDatesAreValid(husband, wife, family, repository):
+    try:
+        datesAreValid(family.getDates())
+    except ValueError as e:
+        raise Exceptions.PersonBadDateFormat(family)
+
+def datesAreValid(dates):
+    for date in dates:
+        formatDate(date)
 
 def inFuture(day):
     if day:
