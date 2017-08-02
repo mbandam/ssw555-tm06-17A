@@ -61,6 +61,9 @@ class TagList(object):
                 args.append(tagLine.args)
         return args
 
+    def getDates(self):
+        return self.getArgs('DATE')
+
 
 class Person(TagList):
     def getIndiId(self):

@@ -52,10 +52,18 @@ class BirthAfterMotherDeath(PersonException):
         self.message += 'This person was born on {} after their mother died on {}.'.format(person.getBirthDate(),
                                                                                            motherDeathDate)
 
+
+class PersonBadDateFormat(PersonException):
+    def __init__(self, person):
+        PersonException.__init__(self, person, '42')
+        self.message += 'This individual contains a bad date format: {}.'.format(person.getDates())
+
+
 class UniqueIndividualIds(PersonException):
     def __init__(self, person):
         PersonException.__init__(self, person, '22')
-        self.message += 'This individual id is appeared more than once, So it is not valid.'.format()       
+        self.message += 'This individual id is appeared more than once, So it is not valid.'.format()
+
 
 class MarriageException(Error):
     def __init__(self, person, family, userStoryNumber):
@@ -146,32 +154,49 @@ class MarriedToDescendant(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '17')
         if person.getSex() is Domain.Sex.MALE.value:
-            self.message += 'This husband cannot be married to female with Id "{}" he is her descendant.'.format(family.getWifeId())
+            self.message += 'This husband cannot be married to female with Id "{}" he is her descendant.'.format(
+                family.getWifeId())
         else:
-            self.message += 'This wife cannot be married to male with Id "{}" she is his descendant.'.format(family.getHusbandId())
+            self.message += 'This wife cannot be married to male with Id "{}" she is his descendant.'.format(
+                family.getHusbandId())
+
 
 class SiblingMarriage(MarriageException):
     def __init__(self, person, family, otherFamily):
         MarriageException.__init__(self, person, family, '18')
-        self.message += 'Husband {} and wife {} are siblings in family {}.'.format(family.getHusbandId(), family.getWifeId(), otherFamily.getFamId())
+        self.message += 'Husband {} and wife {} are siblings in family {}.'.format(family.getHusbandId(),
+                                                                                   family.getWifeId(),
+                                                                                   otherFamily.getFamId())
+
 
 class FirstCousinMarriage(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '19')
         self.message += 'Husband {} and wife {} are first cousins.'.format(family.getHusbandId(), family.getWifeId())
 
+
 class NotCorrectGenderForHusband(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '21')
-        self.message = 'ERROR: US21: FAMILY {}: HUSBAND {}: In this family, husband role is not Male.'.format(family.getFamId(), person.getIndiId())
+        self.message = 'ERROR: US21: FAMILY {}: HUSBAND {}: In this family, husband role is not Male.'.format(
+            family.getFamId(), person.getIndiId())
+
 
 class NotCorrectGenderForWife(MarriageException):
     def __init__(self, person, family):
         MarriageException.__init__(self, person, family, '21')
-        self.message = 'ERROR: US21: FAMILY {}: WIFE {}: In this family, wife role is not Female.'.format(family.getFamId(), person.getIndiId())
-        
+        self.message = 'ERROR: US21: FAMILY {}: WIFE {}: In this family, wife role is not Female.'.format(
+            family.getFamId(), person.getIndiId())
+
+
+class FamilyBadDateFormat(MarriageException):
+    def __init__(self, person, family):
+        MarriageException.__init__(self, person, family, '42')
+        self.message = 'This family contains a bad date format: {}.'.format(family.getDates())
+
+
 class UniqueFamilyIds(MarriageException):
     def __init__(self, husband, family):
         MarriageException.__init__(self, husband, family, '22')
-        self.message = 'ERROR: US22: FAMILY {}: This family id is appeared more than once, So it is not valid.'.format(family.getFamId())
-    
+        self.message = 'ERROR: US22: FAMILY {}: This family id is appeared more than once, So it is not valid.'.format(
+            family.getFamId())
