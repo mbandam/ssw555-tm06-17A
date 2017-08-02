@@ -1,6 +1,7 @@
 from prettytable import PrettyTable
-from datetime import datetime, timedelta, date
-import Domain
+from datetime import datetime, timedelta
+from Util import formatDate, formatValue
+from Domain import Sex
 
 
 def people(repository):
@@ -39,7 +40,7 @@ def livingMarriedPeople(repository):
         if person.getDeathDate() is None and person.getSpousalFamilyIds():
             for familyId in person.getSpousalFamilyIds():
                 if repository.getFamily(familyId).getDivorceDate() is None:
-                    if person.getSex() == Domain.Sex.MALE.value:
+                    if person.getSex() == Sex.MALE.value:
                         role = 'Husband'
                     else:
                         role = 'Wife'
@@ -68,33 +69,19 @@ def families(repository):
 
 def upcomingAnniversaries(repository):
     anniversaryTable = PrettyTable()
-    thirtyDaysAgo = datetime.now().date() - timedelta(30)
-    anniversaryTable.field_names = ["ID", "Anniversary Date", "Husband ID", "Husband Name", "Wife ID", "Wife Name"]
+    anniversaryTable.field_names = ["ID", "Anniversary", "Husband ID", "Husband Name", "Wife ID", "Wife Name"]
     for family in repository.getFamilies():
-        if getDateFromString(family.getMarriageDate()) >= thirtyDaysAgo:
+        marriageDay = formatDate(family.getMarriageDate())[4:]
+        currentYear = str(datetime.now().year)
+        anniversary = datetime.strptime(currentYear + marriageDay, "%Y-%m-%d").date()
+        now = datetime.now().date()
+        thirtyDaysAgo = now - timedelta(30)
+        if thirtyDaysAgo <= anniversary <= now:
             anniversaryTable.add_row([family.getFamId(),
-                                      formatDate(family.getMarriageDate()),
+                                      formatDate(family.getMarriageDate())[5:],
                                       family.getHusbandId(),
                                       repository.getPerson(family.getHusbandId()).getName(),
                                       family.getWifeId(),
                                       repository.getPerson(family.getWifeId()).getName()])
-            print("Recent Anniversaries:")
-            print(anniversaryTable)
-
-
-def getDateFromString(string):
-    return date(*map(int, formatDate(string).split('-')))
-
-
-def formatDate(date):
-    if date is None:
-        return "NA"
-    else:
-        return datetime.strptime(date.replace(" ", "/"), "%d/%b/%Y").strftime('%Y-%m-%d')
-
-
-def formatValue(value):
-    if value is None or not value:
-        return 'NA'
-    else:
-        return value
+    print("US39: Recent Anniversaries:")
+    print(anniversaryTable)
